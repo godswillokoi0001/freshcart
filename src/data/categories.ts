@@ -1,5 +1,34 @@
 import type { Category, Brand } from "@app-types/index"
 
+export function categoryVisual(name: string) {
+  const emojis: Record<string, string> = {
+    rice: "🍚",
+    beans: "🫘",
+    garri: "🌾",
+    grains: "🌾",
+    pasta: "🍝",
+    noodles: "🍜",
+    "cooking-oil": "🛢️",
+    milk: "🥛",
+    bread: "🍞",
+    eggs: "🥚",
+    meat: "🥩",
+    chicken: "🍗",
+    fish: "🐟",
+    vegetables: "🥬",
+    fruits: "🍊",
+    beverages: "🥤",
+    biscuits: "🍪",
+    cereals: "🥣",
+    cleaning: "🧼",
+    "personal-care": "🧴",
+    "baby-products": "👶",
+    household: "🧹",
+  }
+  const slug = name.toLowerCase().replace(/\s+/g, "-")
+  return { emoji: emojis[slug] || "🛒", name }
+}
+
 export const categories: Category[] = [
   { id: "rice", name: "Rice", slug: "rice", description: "Parboiled, long grain and local rice in every bag size.", imageUrl: "", productCount: 4, status: "ACTIVE" },
   { id: "beans", name: "Beans", slug: "beans", description: "Honey beans, white beans and other Nigerian staples.", imageUrl: "", productCount: 3, status: "ACTIVE" },

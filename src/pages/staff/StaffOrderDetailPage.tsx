@@ -9,6 +9,7 @@ import { OrderStatusBadge } from "@components/shared/StatusBadges"
 import { PaymentStatusBadge } from "@components/shared/StatusBadges"
 import { formatNaira, formatDate } from "@lib/format"
 import { cn } from "@lib/utils"
+import { useToast } from "@context/ToastContext"
 
 const statusFlow = ["PENDING", "CONFIRMED", "PREPARING", "PACKED", "READY_FOR_PICKUP", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"] as const
 
@@ -31,10 +32,13 @@ export function StaffOrderDetailPage() {
   const currentIndex = statusFlow.indexOf(order.status)
   const [picked, setPicked] = React.useState<Record<string, "PICKED" | "OUT_OF_STOCK" | "SUBSTITUTED">>({})
   const [subNotes, setSubNotes] = React.useState<Record<string, string>>({})
+  const [orderStatus, setOrderStatus] = React.useState(order.status)
+  const { success, error } = useToast()
 
   const nextStatus = () => {
     if (currentIndex < statusFlow.length - 1) {
-      alert(`Order status would advance to ${statusFlow[currentIndex + 1]} (demo)`)
+      setOrderStatus(statusFlow[currentIndex + 1])
+      success("Order status updated", `Order advanced to ${statusFlow[currentIndex + 1]}`)
     }
   }
 
@@ -55,7 +59,7 @@ export function StaffOrderDetailPage() {
           <p className="text-sm text-navy-500">{order.customerName} · {formatDate(order.createdAt)}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <OrderStatusBadge status={order.status} />
+          <OrderStatusBadge status={orderStatus} />
         </div>
       </div>
 
@@ -133,7 +137,7 @@ export function StaffOrderDetailPage() {
               <Button onClick={nextStatus} disabled={currentIndex >= statusFlow.length - 1}>
                 Advance to Next Stage
               </Button>
-              <Button variant="outline" onClick={() => alert("Mark ready for pickup (demo)")}>
+              <Button variant="outline" onClick={() => setOrderStatus("READY_FOR_PICKUP")}>
                 Mark Ready for Pickup
               </Button>
             </div>

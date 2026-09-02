@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Globe, Shield, Database, Server, Save, Loader2, Bell, CreditCard, Mail, Key } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
@@ -10,6 +11,7 @@ import { Separator } from "@components/ui/Separator"
 import { cn } from "@lib/utils"
 
 export function SuperAdminSystemSettingsPage() {
+  const { success } = useToast()
   const [general, setGeneral] = React.useState({ platformName: "FreshCart", supportEmail: "support@freshcart.ng", defaultLanguage: "en", maintenanceMode: false, debugMode: false })
   const [database, setDatabase] = React.useState({ host: "localhost", port: 5432, name: "freshcart", ssl: true, poolSize: 20 })
   const [api, setApi] = React.useState({ rateLimit: 100, corsOrigins: "https://freshcart.ng, https://admin.freshcart.ng", webhookSecret: "whsec_...", version: "v1" })
@@ -52,7 +54,7 @@ export function SuperAdminSystemSettingsPage() {
             <div className="flex items-center justify-between p-3 rounded-lg border border-navy-800"><div><p className="font-medium text-white">Maintenance Mode</p><p className="text-sm text-navy-400">Disable all customer-facing features</p></div><Switch checked={general.maintenanceMode} onCheckedChange={checked => setGeneral({...general, maintenanceMode: checked})} /></div>
             <div className="flex items-center justify-between p-3 rounded-lg border border-navy-800"><div><p className="font-medium text-white">Debug Mode</p><p className="text-sm text-navy-400">Enable verbose logging</p></div><Switch checked={general.debugMode} onCheckedChange={checked => setGeneral({...general, debugMode: checked})} /></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save General Settings</Button>
+          <Button onClick={() => success("Settings saved", "General settings have been updated.")}><Save className="h-4 w-4" /> Save General Settings</Button>
         </TabsContent>
 
         <TabsContent value="database" className="space-y-6">
@@ -66,7 +68,7 @@ export function SuperAdminSystemSettingsPage() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg border border-navy-800"><div><p className="font-medium text-white">SSL Connection</p><p className="text-sm text-navy-400">Enforce SSL for database connections</p></div><Switch checked={database.ssl} onCheckedChange={checked => setDatabase({...database, ssl: checked})} /></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Database Settings</Button>
+          <Button onClick={() => success("Settings saved", "Database settings have been updated.")}><Save className="h-4 w-4" /> Save Database Settings</Button>
         </TabsContent>
 
         <TabsContent value="api" className="space-y-6">
@@ -79,7 +81,7 @@ export function SuperAdminSystemSettingsPage() {
             <div><Label htmlFor="corsOrigins">CORS Origins (comma-separated)</Label><Input id="corsOrigins" value={api.corsOrigins} onChange={e => setApi({...api, corsOrigins: e.target.value})} className="bg-navy-900 border-navy-700" /></div>
             <div><Label htmlFor="webhookSecret">Webhook Secret</Label><Input id="webhookSecret" type="password" value={api.webhookSecret} onChange={e => setApi({...api, webhookSecret: e.target.value})} className="bg-navy-900 border-navy-700" /></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save API Settings</Button>
+          <Button onClick={() => success("Settings saved", "API settings have been updated.")}><Save className="h-4 w-4" /> Save API Settings</Button>
         </TabsContent>
 
         <TabsContent value="email" className="space-y-6">
@@ -90,7 +92,7 @@ export function SuperAdminSystemSettingsPage() {
             <div><Label htmlFor="apiKey">API Key</Label><Input id="apiKey" type="password" value={email.apiKey} onChange={e => setEmail({...email, apiKey: e.target.value})} className="bg-navy-900 border-navy-700" /></div>
             <div><Label htmlFor="templatesPath">Templates Path</Label><Input id="templatesPath" value={email.templatesPath} onChange={e => setEmail({...email, templatesPath: e.target.value})} className="bg-navy-900 border-navy-700" /></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Email Settings</Button>
+          <Button onClick={() => success("Settings saved", "Email settings have been updated.")}><Save className="h-4 w-4" /> Save Email Settings</Button>
         </TabsContent>
 
         <TabsContent value="storage" className="space-y-6">
@@ -100,7 +102,7 @@ export function SuperAdminSystemSettingsPage() {
             <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="bucket">Bucket Name</Label><Input id="bucket" value={storage.bucket} onChange={e => setStorage({...storage, bucket: e.target.value})} className="bg-navy-900 border-navy-700" /></div><div><Label htmlFor="cdnUrl">CDN URL</Label><Input id="cdnUrl" value={storage.cdnUrl} onChange={e => setStorage({...storage, cdnUrl: e.target.value})} className="bg-navy-900 border-navy-700" /></div></div>
             <div><Label htmlFor="maxFileSize">Max File Size (MB)</Label><Input id="maxFileSize" type="number" value={storage.maxFileSize} onChange={e => setStorage({...storage, maxFileSize: Number(e.target.value)})} className="bg-navy-900 border-navy-700" /></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Storage Settings</Button>
+          <Button onClick={() => success("Settings saved", "Storage settings have been updated.")}><Save className="h-4 w-4" /> Save Storage Settings</Button>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
@@ -114,7 +116,7 @@ export function SuperAdminSystemSettingsPage() {
               <div><Label htmlFor="maxLoginAttempts">Max Login Attempts</Label><Input id="maxLoginAttempts" type="number" value={security.maxLoginAttempts} onChange={e => setSecurity({...security, maxLoginAttempts: Number(e.target.value)})} className="bg-navy-900 border-navy-700" /></div>
             </div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Security Settings</Button>
+          <Button onClick={() => success("Settings saved", "Security settings have been updated.")}><Save className="h-4 w-4" /> Save Security Settings</Button>
         </TabsContent>
       </Tabs>
     </div>

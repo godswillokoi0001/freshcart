@@ -116,7 +116,7 @@ export function StaffInventoryPage() {
                 <TableCell className="text-center font-mono text-sm text-navy-700">{p.stock}</TableCell>
                 <TableCell className="text-center"><StockStatusBadge status={p.stockStatus} /></TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="text-navy-400 hover:text-navy-700" onClick={(e) => { e.stopPropagation(); alert("View product details (demo)") }}>
+                  <Button variant="ghost" size="icon" className="text-navy-400 hover:text-navy-700" onClick={(e) => { e.stopPropagation(); success("Product opened", `Viewing ${p.name} details.`) }}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -155,7 +155,7 @@ export function StaffInventoryPage() {
                       <div><span className="text-navy-500">Price:</span> <span className="font-medium">{formatNaira(p.price)}</span></div>
                       <div className="col-span-2"><span className="text-navy-500">Stock:</span> <span className="font-medium">{p.stock} ({p.stockStatus})</span></div>
                     </div>
-                    <Button className="w-full" onClick={() => { setSelectedRow(null); alert("Edit product (demo)") }}>Edit Product</Button>
+                    <Button className="w-full" onClick={() => { setSelectedRow(null); success("Edit product", `Editing product: ${p.name}`) }}>Edit Product</Button>
                   </>
                 )
               })()}

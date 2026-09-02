@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, Truck, ShieldCheck, Clock, BadgePercent } from "lucide-react"
+import { ArrowRight, Truck, ShieldCheck, Clock, BadgePercent, MapPin, Heart, Star, Package, Eye } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { ProductGrid } from "@components/customer/ProductCard"
 import { CategoryCard } from "@components/customer/CategoryCard"
-import { categories } from "@data/categories"
+import { categories, categoryVisual } from "@data/categories"
 import { products, dealProducts, featuredProducts } from "@data/products"
-import { discountPercent } from "@lib/format"
-import { categoryVisual } from "@lib/catalog"
+import { discountPercent, formatNaira } from "@lib/format"
 
 const deals = dealProducts.slice(0, 5)
 
@@ -128,12 +127,95 @@ function DealStrip() {
               <p className="mt-2 line-clamp-2 text-sm font-medium text-navy-900 group-hover:text-fresh-700">{p.name}</p>
               <p className="text-xs text-navy-500">{p.unit}</p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-base font-bold text-navy-900">{new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(p.price)}</span>
-                {p.compareAtPrice && <span className="text-xs text-navy-400 line-through">{new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(p.compareAtPrice)}</span>}
+                <span className="text-base font-bold text-navy-900">{formatNaira(p.price)}</span>
+                {p.compareAtPrice && (
+                  <span className="text-xs text-navy-400 line-through">{formatNaira(p.compareAtPrice)}</span>
+                )}
               </div>
             </Link>
           )
         })}
+      </div>
+    </section>
+  )
+}
+
+function TrustStrip() {
+  return (
+    <section className="container pb-12 border-t border-navy-200 bg-navy-900">
+      <div className="container flex flex-col items-center justify-between gap-6 py-12 sm:flex-row">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Get ₦500 off your first order</h2>
+          <p className="mt-1 text-sm text-navy-300">
+            Use coupon <span className="font-semibold text-fresh-400">FRESH500</span> on orders above ₦5,000.
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button size="lg" asChild>
+            <Link to="/shop">Start Shopping</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/account">My Account</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CategoryGrid() {
+  return (
+    <section className="container pb-12">
+      <div className="mb-5 flex items-end justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-navy-900">Shop by Category</h2>
+          <p className="mt-1 text-sm text-navy-500">From rice to fresh produce — find it all in one supermarket.</p>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/categories">
+            All categories <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+        {categories.slice(0, 16).map((c) => (
+          <CategoryCard key={c.id} category={c} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function PopularStrip() {
+  return (
+    <section className="container pb-12">
+      <div className="mb-5 flex items-end justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-navy-900">Popular Right Now</h2>
+          <p className="mt-1 text-sm text-navy-500">What Lagos households are buying this week.</p>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/shop">Shop all <ArrowRight className="h-4 w-4" /></Link>
+        </Button>
+      </div>
+      <ProductGrid products={featuredProducts} />
+    </section>
+  )
+}
+
+function CategoriesGrid() {
+  return (
+    <section className="container pb-12">
+      <div className="mb-5 flex items-end justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-navy-900">Shop All Categories</h2>
+          <p className="mt-1 text-sm text-navy-500">Browse over 20 product categories.</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {categories.slice(0, 20).map((c) => (
+          <CategoryCard key={c.id} category={c} />
+        ))}
       </div>
     </section>
   )
@@ -145,55 +227,15 @@ export function HomePage() {
       <Hero />
       <ValueProps />
 
-      <section className="container pb-12">
-        <div className="mb-5 flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-navy-900">Shop by Category</h2>
-            <p className="mt-1 text-sm text-navy-500">From rice to fresh produce — find it all in one supermarket.</p>
-          </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/categories">
-              All categories <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-          {categories.slice(0, 16).map((c) => (
-            <CategoryCard key={c.id} category={c} />
-          ))}
-        </div>
-      </section>
-
       <DealStrip />
 
-      <section className="container pb-12">
-        <div className="mb-5 flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-navy-900">Popular Right Now</h2>
-            <p className="mt-1 text-sm text-navy-500">What Lagos households are buying this week.</p>
-          </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/shop">
-              Shop all <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <ProductGrid products={featuredProducts} />
-      </section>
+      <TrustStrip />
 
-      <section className="border-t border-navy-200 bg-navy-900">
-        <div className="container flex flex-col items-center justify-between gap-6 py-12 sm:flex-row">
-          <div>
-            <h2 className="text-2xl font-bold text-white">Get ₦500 off your first order</h2>
-            <p className="mt-1 text-sm text-navy-300">
-              Use coupon <span className="font-semibold text-fresh-400">FRESH500</span> on orders above ₦5,000.
-            </p>
-          </div>
-          <Button size="lg" asChild>
-            <Link to="/shop">Start Shopping</Link>
-          </Button>
-        </div>
-      </section>
+      <CategoryGrid />
+
+      <PopularStrip />
+
+      <CategoriesGrid />
     </div>
   )
 }

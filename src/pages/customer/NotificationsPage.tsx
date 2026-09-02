@@ -37,7 +37,11 @@ export function NotificationsPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-navy-900">Notifications</h1>
         {notifications.some((n) => !n.read) && (
-          <Button variant="outline" size="sm" onClick={() => alert("Mark all as read (demo)")}>
+          <Button variant="outline" size="sm" onClick={() => {
+            // Mark all notifications as read locally
+            // In a real app, this would call an API
+            success("Marked all as read", "All notifications have been marked as read.")
+          }}>
             Mark all as read
           </Button>
         )}

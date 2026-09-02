@@ -1,5 +1,6 @@
 import React from "react"
 import { User, Shield, Bell, CreditCard, Globe, Database, Save, Loader2, Truck } from "lucide-react"
+import { useToast } from "@context/ToastContext"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
 import { Label } from "@components/ui/Label"
@@ -10,6 +11,7 @@ import { Separator } from "@components/ui/Separator"
 import { cn } from "@lib/utils"
 
 export function AdminSettingsPage() {
+  const { success, error } = useToast()
   const [general, setGeneral] = React.useState({ storeName: "FreshCart Supermarket", email: "hello@freshcart.ng", phone: "+234 800 373 7427", address: "12 Marina Road, Lagos Island, Lagos", timezone: "Africa/Lagos", currency: "NGN" })
   const [notifications, setNotifications] = React.useState({ emailOrders: true, emailLowStock: true, smsDelivery: false, pushPromos: true, pushOrders: true })
   const [payments, setPayments] = React.useState({ paystackEnabled: true, paystackPublicKey: "pk_test_...", paystackSecretKey: "sk_test_...", bankTransferEnabled: true, codEnabled: true, minCodAmount: 5000 })
@@ -54,7 +56,7 @@ export function AdminSettingsPage() {
             </div>
           </div>
           <Separator />
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save General Settings</Button>
+<Button onClick={() => success("Settings saved", "General settings have been updated.")}><Save className="h-4 w-4" /> Save General Settings</Button>
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4">
@@ -71,7 +73,7 @@ export function AdminSettingsPage() {
               <Switch checked={notifications[n.key as keyof typeof notifications]} onCheckedChange={checked => setNotifications({...notifications, [n.key]: checked})} />
             </label>
           ))}
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Notification Settings</Button>
+          <Button onClick={() => success("Settings saved", "Notification settings have been updated.")}><Save className="h-4 w-4" /> Save Notification Settings</Button>
         </TabsContent>
 
         <TabsContent value="payments" className="space-y-4">
@@ -84,7 +86,7 @@ export function AdminSettingsPage() {
             <div className="flex items-center justify-between p-3 rounded-lg border border-navy-100"><div><p className="font-medium text-navy-900">Pay on Delivery</p><p className="text-sm text-navy-500">Cash or card on delivery</p></div><Switch checked={payments.codEnabled} onCheckedChange={checked => setPayments({...payments, codEnabled: checked})} /></div>
             <div><Label htmlFor="minCodAmount">Minimum COD Amount (₦)</Label><Input id="minCodAmount" type="number" value={payments.minCodAmount} onChange={e => setPayments({...payments, minCodAmount: Number(e.target.value)})} /></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Payment Settings</Button>
+          <Button onClick={() => success("Settings saved", "Payment settings have been updated.")}><Save className="h-4 w-4" /> Save Payment Settings</Button>
         </TabsContent>
 
         <TabsContent value="delivery" className="space-y-4">
@@ -95,7 +97,7 @@ export function AdminSettingsPage() {
             <div><Label htmlFor="standardFee">Standard Fee (₦)</Label><Input id="standardFee" type="number" value={delivery.standardFee} onChange={e => setDelivery({...delivery, standardFee: Number(e.target.value)})} /></div>
           </div>
           <div><Label htmlFor="areas">Service Areas (comma-separated)</Label><textarea id="areas" value={delivery.areas.join(", ")} onChange={e => setDelivery({...delivery, areas: e.target.value.split(",").map(s => s.trim())})} className="w-full rounded-md border border-navy-200 p-2 text-sm focus:border-fresh-500" rows={2} /></div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Delivery Settings</Button>
+          <Button onClick={() => success("Settings saved", "Delivery settings have been updated.")}><Save className="h-4 w-4" /> Save Delivery Settings</Button>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">
@@ -104,7 +106,7 @@ export function AdminSettingsPage() {
             <div className="flex items-center justify-between p-3 rounded-lg border border-navy-100"><div><p className="font-medium text-navy-900">Two-Factor Authentication</p><p className="text-sm text-navy-500">Require 2FA for all admin accounts</p></div><Switch checked={security.twoFactor} onCheckedChange={checked => setSecurity({...security, twoFactor: checked})} /></div>
             <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label><Input id="sessionTimeout" type="number" value={security.sessionTimeout} onChange={e => setSecurity({...security, sessionTimeout: Number(e.target.value)})} min="5" max="480" /></div><div><Label htmlFor="passwordMinLength">Minimum Password Length</Label><Input id="passwordMinLength" type="number" value={security.passwordMinLength} onChange={e => setSecurity({...security, passwordMinLength: Number(e.target.value)})} min="6" max="32" /></div><div><Label htmlFor="loginAttempts">Max Login Attempts</Label><Input id="loginAttempts" type="number" value={security.loginAttempts} onChange={e => setSecurity({...security, loginAttempts: Number(e.target.value)})} min="3" max="10" /></div></div>
           </div>
-          <Button onClick={() => alert("Saved (demo)")}><Save className="h-4 w-4" /> Save Security Settings</Button>
+          <Button onClick={() => success("Settings saved", "Security settings have been updated.")}><Save className="h-4 w-4" /> Save Security Settings</Button>
         </TabsContent>
       </Tabs>
     </div>

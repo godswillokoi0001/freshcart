@@ -17,7 +17,7 @@ export function RiderProfilePage() {
   const me = riders.find((r) => r.name === user?.name) || riders[0]
   const [profile, setProfile] = React.useState({ name: me.name, email: me.email, phone: me.phone, vehicle: me.vehicle })
 
-  const handleSave = () => { setEditing(false); alert("Profile updated (demo)") }
+  const handleSave = () => { setEditing(false); success("Profile updated", "Your profile has been updated locally.") }
 
   return (
     <div className="max-w-xl space-y-6">

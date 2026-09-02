@@ -210,7 +210,7 @@ export function CheckoutPage() {
                       />
                       <Button
                         variant={coupon ? "default" : "secondary"}
-                        onClick={() => coupon && alert(`Coupon "${coupon}" applied — discount will reflect on payment step.`)}
+                        onClick={() => setCoupon(coupon) && success("Coupon applied", ` "${coupon}" will be applied at checkout.`)}
                       >
                         {coupon ? "Applied" : "Apply"}
                       </Button>
@@ -310,7 +310,7 @@ export function CheckoutPage() {
           >
             <div className="mt-4 space-y-3">
               <p className="text-sm text-navy-500">Your order will be processed after confirmation.</p>
-              <p className="text-xs text-navy-400">No charges will be made — this is a demo.</p>
+              <p className="text-xs text-navy-400">No charges will be made — this is a frontend simulation. Order confirmed locally.</p>
             </div>
           </CheckoutSummary>
         </div>

@@ -28,7 +28,7 @@ function ProductDetailModal({ product, onClose }: { product: typeof products[0];
         <div><span className="text-navy-500">Price:</span> <span className="font-medium">{formatNaira(product.price)}</span></div>
         <div className="col-span-2"><span className="text-navy-500">Stock:</span> <span className="font-medium">{product.stock} ({product.stockStatus})</span></div>
       </div>
-      <Button className="w-full" onClick={() => { onClose(); alert("Adjust stock (demo)") }}>Adjust Stock</Button>
+      <Button className="w-full" onClick={() => { onClose(); success("Stock adjusted", "Stock has been updated locally.") }}>Adjust Stock</Button>
     </div>
   )
 }
@@ -76,7 +76,7 @@ export function AdminInventoryPage() {
               <TableCell className="text-right font-semibold text-navy-900">{formatNaira(p.price)}</TableCell>
               <TableCell className="text-center font-mono text-sm text-navy-700">{p.stock}</TableCell>
               <TableCell className="text-center"><StockStatusBadge status={p.stockStatus} /></TableCell>
-              <TableCell className="text-center"><Button variant="ghost" size="icon" className="text-navy-400 hover:text-navy-700" onClick={e => { e.stopPropagation(); alert("Adjust stock (demo)") }}><Package className="h-4 w-4" /></Button></TableCell>
+              <TableCell className="text-center"><Button variant="ghost" size="icon" className="text-navy-400 hover:text-navy-700" onClick={e => { e.stopPropagation(); success("Stock adjusted", "Stock has been updated locally.") }}><Package className="h-4 w-4" /></Button></TableCell>
             </TableRow>
           ))}
         </TableBody></Table>

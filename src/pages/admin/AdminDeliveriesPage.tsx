@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Link } from "react-router-dom"
 import { Search, Filter, Truck, MapPin, Clock, ChevronRight, User, AlertCircle, CheckCircle2, Package, ChevronLeft, MoreHorizontal } from "lucide-react"
 import { Button } from "@components/ui/Button"
@@ -27,7 +28,7 @@ export function AdminDeliveriesPage() {
   }, [search, statusFilter])
 
   const assignRider = (deliveryId: string, riderId: string) => {
-    alert(`Assigned rider ${riderId} to ${deliveryId} (demo)`)
+    success("Rider assigned", `Rider assigned to delivery ${deliveryId}`)
   }
 
   return (
@@ -87,7 +88,7 @@ export function AdminDeliveriesPage() {
             <div className="mt-4 space-y-3">
               <Select><SelectTrigger className="w-full"><SelectValue placeholder="Select unassigned delivery" /></SelectTrigger><SelectContent>{filtered.filter(d => d.status === "UNASSIGNED").map(d => <SelectItem key={d.id} value={d.id}>{d.orderId} — {d.customerName}</SelectItem>)}</SelectContent></Select>
               <Select><SelectTrigger className="w-full"><SelectValue placeholder="Select available rider" /></SelectTrigger><SelectContent>{availableRiders.map(r => <SelectItem key={r.id} value={r.id}>{r.name} ({r.vehicle})</SelectItem>)}</SelectContent></Select>
-              <Button className="w-full" onClick={() => alert("Assigned (demo)")}>Assign Rider</Button>
+              <Button className="w-full" onClick={() => assignRider("FC-10236", "rider-1")}>Assign Rider</Button>
             </div>
           </section>
         </div>

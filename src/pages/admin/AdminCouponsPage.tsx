@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Link } from "react-router-dom"
 import { Search, Plus, Filter, Edit, Trash2, ChevronRight, TicketPercent, Calendar, ChevronLeft } from "lucide-react"
 import { Button } from "@components/ui/Button"
@@ -14,6 +15,7 @@ const types = ["all", "PERCENTAGE", "FIXED"] as const
 const statuses = ["all", "ACTIVE", "EXPIRED", "DISABLED"] as const
 
 export function AdminCouponsPage() {
+  const { success } = useToast()
   const [search, setSearch] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState<typeof types[number]>("all")
   const [statusFilter, setStatusFilter] = React.useState<typeof statuses[number]>("all")
@@ -58,7 +60,7 @@ export function AdminCouponsPage() {
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editing ? "Edit Coupon" : "Create Coupon"}</DialogTitle></DialogHeader>
-        <form className="space-y-4" onSubmit={e => { e.preventDefault(); alert("Saved (demo)"); setCreateOpen(false); setEditing(null) }}>
+        <form className="space-y-4" onSubmit={e => { e.preventDefault(); setCreateOpen(false); setEditing(null); success("Coupon saved", `"${form.code}" has been saved.`); }}>
           <div><Label htmlFor="code">Coupon Code</Label><Input id="code" value={form.code} onChange={e => setForm({...form, code: e.target.value.toUpperCase()})} required placeholder="e.g. FRESH500" /></div>
           <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="type">Discount Type</Label><Select value={form.discountType} onValueChange={v => setForm({...form, discountType: v})}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="PERCENTAGE">Percentage</SelectItem><SelectItem value="FIXED">Fixed Amount</SelectItem></SelectContent></Select></div><div><Label htmlFor="value">Value</Label><Input id="value" type="number" value={form.discountValue} onChange={e => setForm({...form, discountValue: Number(e.target.value)})} min="1" required /></div></div>
           <div><Label htmlFor="minOrder">Minimum Order (₦)</Label><Input id="minOrder" type="number" value={form.minOrder} onChange={e => setForm({...form, minOrder: Number(e.target.value)})} placeholder="0 for no minimum" /></div>

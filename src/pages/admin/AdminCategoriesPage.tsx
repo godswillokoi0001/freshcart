@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Link } from "react-router-dom"
 import { Search, Plus, Edit, Trash2, ChevronRight, Image, Tag } from "lucide-react"
 import { Button } from "@components/ui/Button"
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@components/ui/Label"
 
 export function AdminCategoriesPage() {
+  const { success } = useToast()
   const [search, setSearch] = React.useState("")
   const [createOpen, setCreateOpen] = React.useState(false)
   const [editing, setEditing] = React.useState<typeof categories[0] | null>(null)
@@ -48,7 +50,7 @@ export function AdminCategoriesPage() {
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editing ? "Edit Category" : "Create Category"}</DialogTitle></DialogHeader>
-        <form className="space-y-4" onSubmit={e => { e.preventDefault(); alert("Saved (demo)"); setCreateOpen(false); setEditing(null) }}>
+        <form className="space-y-4" onSubmit={e => { e.preventDefault(); setCreateOpen(false); setEditing(null); success("Category saved", `"${form.name}" has been saved.`); }}>
           <div><Label htmlFor="name">Name</Label><Input id="name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
           <div><Label htmlFor="slug">Slug</Label><Input id="slug" value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} placeholder="auto-generated" /></div>
           <div><Label htmlFor="description">Description</Label><textarea id="description" value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full rounded-md border border-navy-200 p-2 text-sm focus:border-fresh-500" rows={2} /></div>

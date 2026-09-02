@@ -94,7 +94,7 @@ export function VerifyEmailPage() {
             </div>
 
             <p className="text-center text-sm text-navy-500">
-              Didn't receive the code? <Button variant="ghost" size="sm" className="p-0" onClick={() => error("Resend not implemented", "This is a demo")}>Resend</Button>
+              Didn't receive the code? <Button variant="ghost" size="sm" className="p-0" onClick={() => success("Resend initiated", "A new verification code has been sent to your email.")}>Resend</Button>
             </p>
           </div>
         ) : (

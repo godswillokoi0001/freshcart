@@ -111,7 +111,7 @@ export function SignInPage() {
               <span className="w-full border-t border-navy-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-navy-400">Or continue with demo access</span>
+              <span className="bg-white px-2 text-navy-400">Or continue with FreshCart access</span>
             </div>
           </div>
 

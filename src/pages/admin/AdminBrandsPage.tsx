@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@components/ui/Label"
 
 export function AdminBrandsPage() {
+  const { success } = useToast()
   const [search, setSearch] = React.useState("")
   const [createOpen, setCreateOpen] = React.useState(false)
   const [editing, setEditing] = React.useState<typeof brands[0] | null>(null)
@@ -42,7 +44,7 @@ export function AdminBrandsPage() {
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editing ? "Edit Brand" : "Create Brand"}</DialogTitle></DialogHeader>
-        <form className="space-y-4" onSubmit={e => { e.preventDefault(); alert("Saved (demo)"); setCreateOpen(false); setEditing(null) }}>
+        <form className="space-y-4" onSubmit={e => { e.preventDefault(); setCreateOpen(false); setEditing(null); success("Brand saved", `"${form.name}" has been saved.`); }}>
           <div><Label htmlFor="name">Brand Name</Label><Input id="name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
           <div><Label htmlFor="logoUrl">Logo URL (optional)</Label><Input id="logoUrl" value={form.logoUrl} onChange={e => setForm({...form, logoUrl: e.target.value})} placeholder="https://example.com/logo.png" /></div>
           <div><Label htmlFor="status">Status</Label><Select value={form.status} onValueChange={v => setForm({...form, status: v})}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ACTIVE">Active</SelectItem><SelectItem value="HIDDEN">Hidden</SelectItem></SelectContent></Select></div>

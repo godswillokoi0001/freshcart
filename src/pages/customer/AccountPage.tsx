@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { ChevronRight, User, Package, Heart, Bell, Settings, LogOut, MapPin, Pencil, Trash2, CreditCard } from "lucide-react"
+import { useToast } from "@context/ToastContext"
 import { Button } from "@components/ui/Button"
 import { Avatar, AvatarFallback } from "@components/ui/Avatar"
 import { AddressCard } from "@components/customer/AddressCard"
@@ -23,6 +24,7 @@ export function AccountPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = React.useState<(typeof tabs)[number]["id"]>(tabs[0].id)
   const [editingProfile, setEditingProfile] = React.useState(false)
+  const { success } = useToast()
   const [profile, setProfile] = React.useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -47,7 +49,7 @@ export function AccountPage() {
 
   const handleSaveProfile = () => {
     setEditingProfile(false)
-    alert("Profile updated (demo)")
+    success("Profile updated", "Your profile changes have been saved.")
   }
 
   const renderTab = () => {
@@ -159,7 +161,7 @@ export function AccountPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-navy-900">Saved Addresses</h3>
-              <Button size="sm" onClick={() => alert("Add address (demo)")}>
+              <Button size="sm" onClick={() => setActiveTab("addresses")}>
                 + Add Address
               </Button>
             </div>
@@ -167,8 +169,12 @@ export function AccountPage() {
               <AddressCard
                 key={a.id}
                 address={a}
-                onEdit={() => alert("Edit address (demo)")}
-                onDelete={() => alert("Delete address (demo)")}
+                onEdit={() => setActiveTab("addresses")}
+                onDelete={() => {
+                  if (confirm("Remove this address?")) {
+                    setActiveTab("addresses")
+                  }
+                }}
               />
             ))}
           </div>

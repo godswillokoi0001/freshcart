@@ -19,7 +19,7 @@ export function StaffProfilePage() {
 
   const handleSave = () => {
     setEditing(false)
-    alert("Profile updated (demo)")
+    success("Profile updated", "Your profile has been updated locally.")
   }
 
   return (

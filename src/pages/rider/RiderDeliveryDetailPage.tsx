@@ -31,15 +31,16 @@ export function RiderDeliveryDetailPage() {
 
   const nextStatus = () => {
     if (currentIndex < statusFlow.length - 1) {
-      const next = statusFlow[currentIndex + 1]
-      if (next === "DELIVERED") setShowProof(true)
-      else alert(`Status updated to ${next} (demo)`)
+      setShowProof(false)
+      setSignature("")
+      // In a real app, this would update the delivery status via API
+      success("Delivery status updated", `Status advanced to ${statusFlow[currentIndex + 1]}`)
     }
   }
 
   const handleComplete = () => {
-    alert(`Delivery ${delivery.orderId} marked as DELIVERED (demo)`)
-    navigate("/rider/deliveries")
+    setShowProof(true)
+    success("Delivery completed", `ORDER #${delivery.orderId} marked as delivered.`)
   }
 
   return (
@@ -87,7 +88,7 @@ export function RiderDeliveryDetailPage() {
               {currentIndex >= statusFlow.length - 1 ? "Delivered" : `Mark as ${statusFlow[currentIndex + 1].replace("_", " ")}`}
               <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={() => alert("Contact support (demo)")}>
+            <Button variant="outline" onClick={() => navigate("/support")}>
               <AlertCircle className="h-4 w-4" /> Issue
             </Button>
           </div>
@@ -108,9 +109,9 @@ export function RiderDeliveryDetailPage() {
           <div className="mt-3 h-48 rounded-lg border border-navy-200 bg-navy-50 flex items-center justify-center">
             <MapPin className="h-12 w-12 text-navy-300" />
           </div>
-          <Button variant="outline" className="mt-3 w-full" onClick={() => alert("Opening navigation (demo)")}>
-            <Navigation className="h-4 w-4" /> Open in Maps
-          </Button>
+<Button variant="outline" className="mt-3 w-full">
+              <Navigation className="h-4 w-4" /> Open in Maps
+            </Button>
         </section>
       </div>
 

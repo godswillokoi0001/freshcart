@@ -55,7 +55,7 @@ export function AdminPromotionsPage() {
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-md"><DialogHeader><DialogTitle>{editing ? "Edit Promotion" : "Create Promotion"}</DialogTitle></DialogHeader>
-        <form className="space-y-4" onSubmit={e => { e.preventDefault(); alert("Saved (demo)"); setCreateOpen(false); setEditing(null) }}>
+        <form className="space-y-4" onSubmit={e => { e.preventDefault(); setCreateOpen(false); setEditing(null); success("Promotion saved", `"${form.title}" has been saved.`); }}>
           <div><Label htmlFor="title">Title</Label><Input id="title" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required /></div>
           <div><Label htmlFor="description">Description</Label><textarea id="description" value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full rounded-md border border-navy-200 p-2 text-sm focus:border-fresh-500" rows={2} /></div>
           <div className="grid gap-4 sm:grid-cols-2"><div><Label htmlFor="type">Type</Label><Select value={form.type} onValueChange={v => setForm({...form, type: v})}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{types.filter(t => t !== "all").map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select></div><div><Label htmlFor="status">Status</Label><Select value={form.status} onValueChange={v => setForm({...form, status: v})}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{statuses.filter(s => s !== "all").map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div></div>

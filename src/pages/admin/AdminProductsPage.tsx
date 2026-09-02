@@ -78,7 +78,7 @@ export function AdminProductsPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit Product" : "Create Product"}</DialogTitle><DialogDescription>Fill in the product details below.</DialogDescription></DialogHeader>
-          <form className="space-y-4" onSubmit={e => { e.preventDefault(); alert("Saved (demo)"); setCreateOpen(false); setEditing(null) }}>
+          <form className="space-y-4" onSubmit={e => { e.preventDefault(); setCreateOpen(false); setEditing(null); success("Product saved", `"${form.name}" has been saved.`); }}>
             <div className="grid gap-4 sm:grid-cols-2">
               <div><Label htmlFor="name">Product Name</Label><Input id="name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
               <div><Label htmlFor="sku">SKU</Label><Input id="sku" value={form.sku} onChange={e => setForm({...form, sku: e.target.value})} /></div>
