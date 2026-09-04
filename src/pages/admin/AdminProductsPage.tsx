@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useToast } from "@context/ToastContext"
 import { Link, useSearchParams } from "react-router-dom"
 import { Search, Plus, Filter, ChevronRight, ChevronLeft, Edit, Trash2, Package, Image } from "lucide-react"
 import { Button } from "@components/ui/Button"
@@ -15,6 +16,7 @@ import { StockStatusBadge } from "@components/shared/StatusBadges"
 import { cn } from "@lib/utils"
 
 export function AdminProductsPage() {
+  const { success } = useToast()
   const [params, setParams] = useSearchParams()
   const [search, setSearch] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<"all" | "ACTIVE" | "ARCHIVED">("all")

@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useToast } from "@context/ToastContext"
 import { Search, Filter, ChevronRight, AlertTriangle, CheckCircle2, MinusCircle, XCircle } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
@@ -12,6 +13,7 @@ import { cn } from "@lib/utils"
 const statusOptions = ["all", "IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "DISCONTINUED"] as const
 
 export function StaffInventoryPage() {
+  const { success } = useToast()
   const [query, setQuery] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<typeof statusOptions[number]>("all")
   const [categoryFilter, setCategoryFilter] = React.useState("all")

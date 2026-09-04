@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useToast } from "@context/ToastContext"
 import { Search, Filter, AlertTriangle, CheckCircle2, MinusCircle, XCircle, Package } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
@@ -12,6 +13,7 @@ import { cn } from "@lib/utils"
 const statusOptions = ["all", "IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "DISCONTINUED"] as const
 
 function ProductDetailModal({ product, onClose }: { product: typeof products[0]; onClose: () => void }) {
+  const { success } = useToast()
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-4">
@@ -34,6 +36,7 @@ function ProductDetailModal({ product, onClose }: { product: typeof products[0];
 }
 
 export function AdminInventoryPage() {
+  const { success } = useToast()
   const [query, setQuery] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<typeof statusOptions[number]>("all")
   const [categoryFilter, setCategoryFilter] = React.useState("all")

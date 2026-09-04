@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { ChevronLeft, MapPin, Phone, Navigation, Package, CheckCircle2, Clock, AlertCircle, ArrowRight, ArrowLeft, User } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@components/ui/AlertDialog"
+import { useToast } from "@context/ToastContext"
 import { deliveries } from "@data/people"
 import { DeliveryStatusBadge } from "@components/shared/StatusBadges"
 import { formatNaira } from "@lib/format"
@@ -13,7 +14,12 @@ const statusFlow = ["UNASSIGNED", "ASSIGNED", "ACCEPTED", "GO_TO_STORE", "PICKED
 export function RiderDeliveryDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { success } = useToast()
   const delivery = deliveries.find((d) => d.id === id)
+
+  const [showComplete, setShowComplete] = React.useState(false)
+  const [showProof, setShowProof] = React.useState(false)
+  const [signature, setSignature] = React.useState("")
 
   if (!delivery) {
     return (
@@ -25,9 +31,6 @@ export function RiderDeliveryDetailPage() {
   }
 
   const currentIndex = Math.max(0, statusFlow.indexOf(delivery.status as typeof statusFlow[number]))
-  const [showComplete, setShowComplete] = React.useState(false)
-  const [showProof, setShowProof] = React.useState(false)
-  const [signature, setSignature] = React.useState("")
 
   const nextStatus = () => {
     if (currentIndex < statusFlow.length - 1) {

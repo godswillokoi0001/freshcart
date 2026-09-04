@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Search, Plus, UserPlus, Edit, Trash2, Shield, ChevronRight, User, Mail, ChevronLeft } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
@@ -13,6 +14,7 @@ import { cn } from "@lib/utils"
 const statuses = ["all", "ACTIVE", "INACTIVE"] as const
 
 export function SuperAdminAdminsPage() {
+  const { success } = useToast()
   const [search, setSearch] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<typeof statuses[number]>("all")
   const [createOpen, setCreateOpen] = React.useState(false)

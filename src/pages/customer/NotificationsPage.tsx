@@ -5,6 +5,7 @@ import { EmptyState } from "@components/ui/EmptyState"
 import { Avatar, AvatarFallback } from "@components/ui/Avatar"
 import { notifications } from "@data/orders"
 import { useAuth } from "@context/AuthContext"
+import { useToast } from "@context/ToastContext"
 import { formatDateTime } from "@lib/format"
 import { cn } from "@lib/utils"
 
@@ -17,6 +18,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function NotificationsPage() {
   const { user } = useAuth()
+  const { success } = useToast()
 
   if (!user) {
     return (

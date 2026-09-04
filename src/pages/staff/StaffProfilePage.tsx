@@ -7,11 +7,13 @@ import { Label } from "@components/ui/Label"
 import { Avatar, AvatarFallback } from "@components/ui/Avatar"
 import { Separator } from "@components/ui/Separator"
 import { useAuth } from "@context/AuthContext"
+import { useToast } from "@context/ToastContext"
 import { staff } from "@data/people"
 import { cn } from "@lib/utils"
 
 export function StaffProfilePage() {
   const { user, signOut } = useAuth()
+  const { success } = useToast()
   const navigate = useNavigate()
   const [editing, setEditing] = React.useState(false)
   const me = staff.find((s) => s.name === user?.name) || staff[0]

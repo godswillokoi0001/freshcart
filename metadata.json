@@ -1,0 +1,8 @@
+{
+  "name": "FreshCart",
+  "description": "Nigeria's online supermarket for fresh groceries, household essentials and everyday products delivered to your door.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

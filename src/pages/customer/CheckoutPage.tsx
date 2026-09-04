@@ -12,6 +12,7 @@ import { EmptyState } from "@components/ui/EmptyState"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@components/ui/Sheet"
 import { useCart, FREE_DELIVERY_THRESHOLD } from "@context/CartContext"
 import { useAuth } from "@context/AuthContext"
+import { useToast } from "@context/ToastContext"
 import { addresses, currentCustomer } from "@data/orders"
 import { formatNaira } from "@lib/format"
 import { cn } from "@lib/utils"
@@ -42,6 +43,7 @@ const paymentMethods = [
 export function CheckoutPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { success } = useToast()
   const {
     lines, subtotal, deliveryFee, discount, total, itemCount, couponCode, clearCart, setQuantity, removeItem
   } = useCart()
@@ -55,6 +57,12 @@ export function CheckoutPage() {
   const [newAddress, setNewAddress] = React.useState({
     fullName: "", phone: "", line1: "", line2: "", city: "", state: "", label: "Home",
   })
+
+  React.useEffect(() => {
+    if (!user) {
+      navigate("/sign-in")
+    }
+  }, [user, navigate])
 
   if (lines.length === 0) {
     return (
@@ -71,10 +79,6 @@ export function CheckoutPage() {
   }
 
   if (!user) {
-    React.useEffect(() => {
-      alert("Please sign in to complete checkout.")
-      navigate("/sign-in")
-    }, [navigate])
     return null
   }
 
@@ -210,7 +214,12 @@ export function CheckoutPage() {
                       />
                       <Button
                         variant={coupon ? "default" : "secondary"}
-                        onClick={() => setCoupon(coupon) && success("Coupon applied", ` "${coupon}" will be applied at checkout.`)}
+                        onClick={() => {
+                          if (coupon) {
+                            setCoupon(coupon)
+                            success("Coupon applied", ` "${coupon}" will be applied at checkout.`)
+                          }
+                        }}
                       >
                         {coupon ? "Applied" : "Apply"}
                       </Button>

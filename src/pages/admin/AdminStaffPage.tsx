@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useToast } from "@context/ToastContext"
 import { Link } from "react-router-dom"
 import { Search, Plus, UserPlus, Edit, Trash2, ChevronRight, User, Shield, Mail, Phone, ChevronLeft, MoreHorizontal } from "lucide-react"
 import { Button } from "@components/ui/Button"
@@ -14,6 +15,7 @@ const statuses = ["all", "ACTIVE", "INACTIVE"] as const
 const roles = ["STAFF", "SUPERVISOR"] as const
 
 export function AdminStaffPage() {
+  const { success } = useToast()
   const [search, setSearch] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<typeof statuses[number]>("all")
   const [roleFilter, setRoleFilter] = React.useState<typeof roles[number] | "all">("all")

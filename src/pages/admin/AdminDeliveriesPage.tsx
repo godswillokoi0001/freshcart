@@ -14,6 +14,7 @@ import { cn } from "@lib/utils"
 const statuses = ["all", "UNASSIGNED", "ASSIGNED", "ACCEPTED", "GO_TO_STORE", "PICKED_UP", "OUT_FOR_DELIVERY", "DELIVERED"] as const
 
 export function AdminDeliveriesPage() {
+  const { success } = useToast()
   const [statusFilter, setStatusFilter] = React.useState<typeof statuses[number]>("all")
   const [search, setSearch] = React.useState("")
 

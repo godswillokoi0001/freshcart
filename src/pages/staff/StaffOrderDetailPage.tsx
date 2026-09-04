@@ -16,7 +16,12 @@ const statusFlow = ["PENDING", "CONFIRMED", "PREPARING", "PACKED", "READY_FOR_PI
 export function StaffOrderDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { success, error } = useToast()
   const order = adminOrders.find((o) => o.id === id)
+
+  const [picked, setPicked] = React.useState<Record<string, "PICKED" | "OUT_OF_STOCK" | "SUBSTITUTED">>({})
+  const [subNotes, setSubNotes] = React.useState<Record<string, string>>({})
+  const [orderStatus, setOrderStatus] = React.useState(order?.status || "PENDING")
 
   if (!order) {
     return (
@@ -30,10 +35,6 @@ export function StaffOrderDetailPage() {
   }
 
   const currentIndex = statusFlow.indexOf(order.status)
-  const [picked, setPicked] = React.useState<Record<string, "PICKED" | "OUT_OF_STOCK" | "SUBSTITUTED">>({})
-  const [subNotes, setSubNotes] = React.useState<Record<string, string>>({})
-  const [orderStatus, setOrderStatus] = React.useState(order.status)
-  const { success, error } = useToast()
 
   const nextStatus = () => {
     if (currentIndex < statusFlow.length - 1) {

@@ -1,10 +1,13 @@
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useNavigate } from "react-router-dom"
 import { ChevronRight, MapPin, Phone, CreditCard, Clock, Truck, Package, User, AlertCircle, CheckCircle2, RotateCcw } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { EmptyState } from "@components/ui/EmptyState"
 import { OrderTimeline } from "@components/customer/OrderTimeline"
 import { CheckoutSummary } from "@components/customer/CheckoutSummary"
 import { OrderStatusBadge, PaymentStatusBadge } from "@components/shared/StatusBadges"
+import { useCart } from "@context/CartContext"
+import { useToast } from "@context/ToastContext"
+import { products } from "@data/products"
 import { orderById } from "@data/orders"
 import { formatNaira, formatDate } from "@lib/format"
 import { cn } from "@lib/utils"
@@ -22,6 +25,9 @@ const statusIcons = {
 
 export function OrderDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { addItem } = useCart()
+  const { success } = useToast()
   const order = orderById(id ?? "")
 
   if (!order) {
@@ -161,14 +167,12 @@ export function OrderDetailPage() {
             )}
             {order.status === "DELIVERED" && (
               <Button size="lg" onClick={() => {
-                const items = order.items.map((item) => ({
-                  productId: item.productId,
-                  quantity: item.quantity,
-                }))
-                const { addItem } = useCart()
-                // We need to get the cart context - but since we're in a page component,
-                // we'll just navigate and the cart will pick up from localStorage
-                // For now, show a proper confirmation
+                order.items.forEach((item) => {
+                  const product = products.find((p) => p.id === item.productId)
+                  if (product) {
+                    addItem(product, item.quantity)
+                  }
+                })
                 success("Reorder initiated", `Order ${order.orderNumber} items will be added to your cart.`)
                 navigate(`/cart`)
               }}>

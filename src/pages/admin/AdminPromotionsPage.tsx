@@ -1,4 +1,5 @@
 import React from "react"
+import { useToast } from "@context/ToastContext"
 import { Search, Plus, Filter, Edit, Trash2, Tag, Calendar, Image, Badge } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
@@ -13,6 +14,7 @@ const types = ["all", "DISCOUNT", "BANNER", "BUNDLE"] as const
 const statuses = ["all", "ACTIVE", "SCHEDULED", "ENDED"] as const
 
 export function AdminPromotionsPage() {
+  const { success } = useToast()
   const [search, setSearch] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState<typeof types[number]>("all")
   const [statusFilter, setStatusFilter] = React.useState<typeof statuses[number]>("all")
