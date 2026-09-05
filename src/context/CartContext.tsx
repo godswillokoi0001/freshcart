@@ -2,6 +2,8 @@ import * as React from "react"
 import type { Product } from "@app-types/index"
 import { products } from "@data/products"
 import { useToast } from "./ToastContext"
+import { useAuth } from "./AuthContext"
+import { cartApi, couponApi } from "../services/api"
 
 export interface CartLine {
   productId: string
@@ -28,7 +30,7 @@ interface CartContextValue {
   removeItem: (productId: string) => void
   setQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
-  applyCoupon: (code: string) => boolean
+  applyCoupon: (code: string) => Promise<boolean>
   removeCoupon: () => void
   isInCart: (productId: string) => boolean
   getQuantity: (productId: string) => number
@@ -37,12 +39,22 @@ interface CartContextValue {
 const CartContext = React.createContext<CartContextValue | null>(null)
 
 const STORAGE_KEY = "freshcart-cart"
-const FREE_DELIVERY_THRESHOLD = 50000
+const FREE_DELIVERY_THRESHOLD = 100000
 
 function loadCart(): CartLine[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
+    if (!raw) return []
+    const parsed: CartLine[] = JSON.parse(raw)
+    return parsed.map((item) => {
+      if (!item.imageUrl) {
+        const found = products.find((p) => p.id === item.productId)
+        if (found?.imageUrl) {
+          return { ...item, imageUrl: found.imageUrl }
+        }
+      }
+      return item
+    })
   } catch {
     return []
   }
@@ -51,11 +63,46 @@ function loadCart(): CartLine[] {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = React.useState<CartLine[]>(loadCart)
   const [couponCode, setCouponCode] = React.useState<string | null>(null)
+  const [serverDiscount, setServerDiscount] = React.useState<number>(0)
   const { success, error } = useToast()
+  const { isSignedIn } = useAuth()
 
+  // Sync to localStorage
   React.useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(lines))
   }, [lines])
+
+  // Merge or sync with backend cart on sign in
+  React.useEffect(() => {
+    if (isSignedIn) {
+      async function syncWithBackend() {
+        try {
+          if (lines.length > 0) {
+            await cartApi.merge(lines.map((l) => ({ productId: l.productId, quantity: l.quantity })))
+          }
+          const backendCart = await cartApi.get()
+          if (backendCart.items && backendCart.items.length > 0) {
+            const mapped: CartLine[] = backendCart.items.map((itm: any) => ({
+              productId: itm.productId,
+              name: itm.name,
+              brand: itm.brand || "",
+              unit: itm.unit || "item",
+              price: itm.price,
+              compareAtPrice: itm.compareAtPrice,
+              imageUrl: itm.imageUrl,
+              stock: itm.stock,
+              categoryName: itm.categoryName || "",
+              quantity: itm.quantity,
+            }))
+            setLines(mapped)
+          }
+        } catch (e) {
+          console.warn("Cart backend sync:", e)
+        }
+      }
+      syncWithBackend()
+    }
+  }, [isSignedIn])
 
   const addItem = React.useCallback(
     (product: Product, quantity = 1) => {
@@ -63,10 +110,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         error("Out of stock", `${product.name} is currently unavailable.`)
         return
       }
+
       setLines((prev) => {
         const existing = prev.find((l) => l.productId === product.id)
+        let nextQty = quantity
         if (existing) {
-          const nextQty = Math.min(existing.quantity + quantity, product.stock)
+          nextQty = Math.min(existing.quantity + quantity, product.stock)
+        } else {
+          nextQty = Math.min(quantity, product.stock)
+        }
+
+        if (isSignedIn) {
+          cartApi.updateItem(product.id, nextQty).catch((e) => console.warn("Cart update error:", e))
+        }
+
+        if (existing) {
           return prev.map((l) =>
             l.productId === product.id
               ? { ...l, price: product.price, compareAtPrice: product.compareAtPrice, quantity: nextQty }
@@ -85,62 +143,90 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             imageUrl: product.imageUrl,
             stock: product.stock,
             categoryName: product.categoryName,
-            quantity: Math.min(quantity, product.stock),
+            quantity: nextQty,
           },
         ]
       })
       success("Added to cart", `${product.name} (${product.unit})`)
     },
-    [success, error]
+    [success, error, isSignedIn]
   )
 
   const removeItem = React.useCallback(
     (productId: string) => {
       setLines((prev) => prev.filter((l) => l.productId !== productId))
-    },
-    []
-  )
-
-  const setQuantity = React.useCallback((productId: string, quantity: number) => {
-    setLines((prev) =>
-      quantity <= 0
-        ? prev.filter((l) => l.productId !== productId)
-        : prev.map((l) => (l.productId === productId ? { ...l, quantity } : l))
-    )
-  }, [])
-
-  const clearCart = React.useCallback(() => setLines([]), [])
-
-  const applyCoupon = React.useCallback(
-    (code: string) => {
-      const normalized = code.trim().toUpperCase()
-      const valid = ["FRESH500", "WELCOME10", "BULK3000"]
-      if (valid.includes(normalized)) {
-        setCouponCode(normalized)
-        success("Coupon applied", `${normalized} will be applied at checkout.`)
-        return true
+      if (isSignedIn) {
+        cartApi.removeItem(productId).catch((e) => console.warn("Cart remove error:", e))
       }
-      error("Invalid coupon", `"${code}" is not a valid or expired coupon code.`)
-      return false
     },
-    [success, error]
+    [isSignedIn]
   )
 
-  const removeCoupon = React.useCallback(() => setCouponCode(null), [])
+  const setQuantity = React.useCallback(
+    (productId: string, quantity: number) => {
+      setLines((prev) => {
+        if (quantity <= 0) {
+          if (isSignedIn) cartApi.removeItem(productId).catch((e) => console.warn(e))
+          return prev.filter((l) => l.productId !== productId)
+        }
+        if (isSignedIn) cartApi.updateItem(productId, quantity).catch((e) => console.warn(e))
+        return prev.map((l) => (l.productId === productId ? { ...l, quantity } : l))
+      })
+    },
+    [isSignedIn]
+  )
+
+  const clearCart = React.useCallback(() => {
+    setLines([])
+    setCouponCode(null)
+    setServerDiscount(0)
+    if (isSignedIn) {
+      cartApi.clear().catch((e) => console.warn(e))
+    }
+  }, [isSignedIn])
 
   const subtotal = React.useMemo(
     () => lines.reduce((s, l) => s + l.price * l.quantity, 0),
     [lines]
   )
+
+  const applyCoupon = React.useCallback(
+    async (code: string) => {
+      const normalized = code.trim().toUpperCase()
+      try {
+        const res = await couponApi.validate(normalized, subtotal)
+        if (res.valid) {
+          setCouponCode(res.code)
+          setServerDiscount(res.discount)
+          success("Coupon applied", res.message)
+          return true
+        } else {
+          error("Invalid coupon", "Coupon could not be applied.")
+          return false
+        }
+      } catch (err: any) {
+        error("Invalid coupon", err.message || `"${code}" is not valid.`)
+        return false
+      }
+    },
+    [subtotal, success, error]
+  )
+
+  const removeCoupon = React.useCallback(() => {
+    setCouponCode(null)
+    setServerDiscount(0)
+  }, [])
+
   const itemCount = React.useMemo(() => lines.reduce((s, l) => s + l.quantity, 0), [lines])
   const deliveryFee = subtotal === 0 ? 0 : subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : 1500
+
+  // Recalculate discount if lines change and coupon is applied
   const discount = React.useMemo(() => {
     if (!couponCode) return 0
-    if (couponCode === "FRESH500") return Math.min(500, subtotal)
-    if (couponCode === "WELCOME10") return Math.round(subtotal * 0.1)
-    if (couponCode === "BULK3000") return Math.min(3000, subtotal)
+    if (serverDiscount > 0) return Math.min(serverDiscount, subtotal)
     return 0
-  }, [couponCode, subtotal])
+  }, [couponCode, serverDiscount, subtotal])
+
   const total = Math.max(0, subtotal + deliveryFee - discount)
 
   const isInCart = React.useCallback(
@@ -153,8 +239,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   )
 
   const value: CartContextValue = {
-    lines, itemCount, subtotal, deliveryFee, discount, total, couponCode,
-    addItem, removeItem, setQuantity, clearCart, applyCoupon, removeCoupon, isInCart, getQuantity,
+    lines,
+    itemCount,
+    subtotal,
+    deliveryFee,
+    discount,
+    total,
+    couponCode,
+    addItem,
+    removeItem,
+    setQuantity,
+    clearCart,
+    applyCoupon,
+    removeCoupon,
+    isInCart,
+    getQuantity,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

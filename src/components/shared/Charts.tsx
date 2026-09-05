@@ -119,35 +119,49 @@ export function DonutChart({ data, className, size = 180 }: DonutChartProps) {
   const radius = 15.9155
 
   return (
-    <div className={cn("flex items-center gap-6", className)}>
-      <svg viewBox="0 0 42 42" width={size} height={size} className="shrink-0 -rotate-90" role="img" aria-label="Distribution chart">
-        <circle cx="21" cy="21" r={radius} fill="none" stroke="#f1f5f9" strokeWidth="6" />
-        {data.map((d) => {
-          const pct = (d.value / total) * 100
-          const el = (
-            <circle
-              key={d.label}
-              cx="21"
-              cy="21"
-              r={radius}
-              fill="none"
-              stroke={d.color}
-              strokeWidth="6"
-              strokeDasharray={`${pct} ${100 - pct}`}
-              strokeDashoffset={-offset}
-              strokeLinecap="butt"
-            />
-          )
-          offset += pct
-          return el
-        })}
-      </svg>
-      <ul className="space-y-2">
+    <div className={cn("flex flex-col sm:flex-row items-center justify-around gap-6 w-full overflow-hidden", className)}>
+      <div className="relative shrink-0 flex items-center justify-center">
+        <svg
+          viewBox="0 0 42 42"
+          className="max-w-[190px] w-full aspect-square shrink-0 -rotate-90"
+          style={{ width: size, height: size }}
+          role="img"
+          aria-label="Distribution chart"
+        >
+          <circle cx="21" cy="21" r={radius} fill="none" stroke="#f1f5f9" strokeWidth="6" />
+          {data.map((d) => {
+            const pct = total > 0 ? (d.value / total) * 100 : 0
+            const el = (
+              <circle
+                key={d.label}
+                cx="21"
+                cy="21"
+                r={radius}
+                fill="none"
+                stroke={d.color}
+                strokeWidth="6"
+                strokeDasharray={`${pct} ${100 - pct}`}
+                strokeDashoffset={-offset}
+                strokeLinecap="butt"
+              />
+            )
+            offset += pct
+            return el
+          })}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+          <span className="text-[11px] uppercase tracking-wider text-navy-400 font-semibold">Total</span>
+          <span className="text-sm font-bold text-navy-900">{total.toLocaleString()}</span>
+        </div>
+      </div>
+      <ul className="w-full sm:w-auto space-y-2 text-sm flex-1 max-w-xs min-w-0">
         {data.map((d) => (
-          <li key={d.label} className="flex items-center gap-2 text-sm">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-            <span className="text-navy-700">{d.label}</span>
-            <span className="ml-auto font-medium text-navy-900">{d.value.toLocaleString()}</span>
+          <li key={d.label} className="flex items-center justify-between gap-3 text-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+              <span className="text-navy-700 truncate text-xs sm:text-sm">{d.label}</span>
+            </div>
+            <span className="font-semibold text-navy-900 shrink-0 text-xs sm:text-sm">{d.value.toLocaleString()}</span>
           </li>
         ))}
       </ul>

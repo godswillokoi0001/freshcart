@@ -1,6 +1,6 @@
 import * as React from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
+import { Eye, EyeOff, Mail, Lock, ShieldCheck, KeyRound } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Input } from "@components/ui/Input"
 import { Label } from "@components/ui/Label"
@@ -11,8 +11,9 @@ import { cn } from "@lib/utils"
 
 export function SignInPage() {
   const navigate = useNavigate()
-  const { signIn } = useAuth()
-  const { error } = useToast()
+  const location = useLocation()
+  const { login } = useAuth()
+  const { error: toastError, success: toastSuccess } = useToast()
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
@@ -33,22 +34,65 @@ export function SignInPage() {
     e.preventDefault()
     if (!validate()) return
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    signIn("customer", "Amaka Obi")
-    setLoading(false)
-    navigate("/account")
+    try {
+      const user = await login(email, password)
+      toastSuccess("Welcome back!", `Signed in as ${user.name}`)
+
+      // Redirect based on authorized role or return path
+      const fromPath = (location.state as any)?.from?.pathname
+      if (fromPath && fromPath !== "/sign-in" && fromPath !== "/sign-up") {
+        navigate(fromPath, { replace: true })
+        return
+      }
+
+      switch (user.role) {
+        case "super-admin":
+          navigate("/super-admin", { replace: true })
+          break
+        case "admin":
+          navigate("/admin", { replace: true })
+          break
+        case "staff":
+          navigate("/staff", { replace: true })
+          break
+        case "rider":
+          navigate("/rider", { replace: true })
+          break
+        default:
+          navigate("/account", { replace: true })
+          break
+      }
+    } catch (err: any) {
+      const msg = err.message || "Invalid email or password"
+      setErrors({ form: msg })
+      toastError("Authentication failed", msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const quickFillCredentials = (emailVal: string) => {
+    setEmail(emailVal)
+    setPassword("FreshCart2026!")
+    setErrors({})
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-navy-50 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-navy-50 py-12 px-4 sm:px-6">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Logo className="mx-auto" />
           <h1 className="mt-4 text-2xl font-bold text-navy-900">Welcome back</h1>
-          <p className="mt-2 text-sm text-navy-500">Sign in to your FreshCart account</p>
+          <p className="mt-2 text-sm text-navy-500">Sign in with your verified FreshCart credentials</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-navy-200 bg-white p-6 shadow-sm" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-navy-200 bg-white p-6 sm:p-8 shadow-sm" noValidate>
+          {errors.form && (
+            <div className="p-3 bg-danger-50 border border-danger-200 text-danger-700 rounded-lg text-sm">
+              {errors.form}
+            </div>
+          )}
+
           <div>
             <Label htmlFor="email">Email Address</Label>
             <div className="relative mt-1">
@@ -57,7 +101,7 @@ export function SignInPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: "" })) }}
+                onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: "", form: "" })) }}
                 placeholder="you@example.com"
                 className={cn("pl-9", errors.email && "border-danger-500 focus:border-danger-500")}
                 autoComplete="email"
@@ -80,7 +124,7 @@ export function SignInPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "" })) }}
+                onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "", form: "" })) }}
                 placeholder="••••••••"
                 className={cn("pl-9 pr-10", errors.password && "border-danger-500 focus:border-danger-500")}
                 autoComplete="current-password"
@@ -99,38 +143,57 @@ export function SignInPage() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Signing in…" : "Sign In"}
+            {loading ? "Authenticating…" : "Sign In"}
           </Button>
 
           <p className="text-center text-sm text-navy-500">
             Don't have an account? <Link to="/sign-up" className="font-medium text-fresh-700 hover:underline">Create one</Link>
           </p>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-navy-200" />
+          <div className="pt-4 border-t border-navy-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-navy-400 uppercase tracking-wider flex items-center gap-1.5">
+                <KeyRound className="h-3.5 w-3.5" /> Quick Fill Account Credentials
+              </span>
+              <span className="text-[11px] text-navy-400">Password: FreshCart2026!</span>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-navy-400">Or continue with FreshCart access</span>
+            <div className="grid grid-cols-2 gap-1.5 text-xs">
+              <button
+                type="button"
+                onClick={() => quickFillCredentials("customer@freshcart.ng")}
+                className="p-1.5 text-left rounded bg-navy-50 hover:bg-navy-100 text-navy-700 font-medium transition-colors border border-navy-200/60"
+              >
+                🛒 Customer
+              </button>
+              <button
+                type="button"
+                onClick={() => quickFillCredentials("staff@freshcart.ng")}
+                className="p-1.5 text-left rounded bg-navy-50 hover:bg-navy-100 text-navy-700 font-medium transition-colors border border-navy-200/60"
+              >
+                📋 Staff
+              </button>
+              <button
+                type="button"
+                onClick={() => quickFillCredentials("rider@freshcart.ng")}
+                className="p-1.5 text-left rounded bg-navy-50 hover:bg-navy-100 text-navy-700 font-medium transition-colors border border-navy-200/60"
+              >
+                🛵 Rider
+              </button>
+              <button
+                type="button"
+                onClick={() => quickFillCredentials("admin@freshcart.ng")}
+                className="p-1.5 text-left rounded bg-navy-50 hover:bg-navy-100 text-navy-700 font-medium transition-colors border border-navy-200/60"
+              >
+                📊 Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => quickFillCredentials("superadmin@freshcart.ng")}
+                className="p-1.5 text-left rounded bg-navy-50 hover:bg-navy-100 text-navy-700 font-medium transition-colors border border-navy-200/60 col-span-2"
+              >
+                🔐 Super Admin (superadmin@freshcart.ng)
+              </button>
             </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Button variant="outline" onClick={() => { signIn("customer", "Amaka Obi"); navigate("/account") }}>
-              <span className="mr-2">🛒</span> Continue as Customer (Amaka)
-            </Button>
-            <Button variant="outline" onClick={() => { signIn("staff", "Bola Adeyemi"); navigate("/staff") }}>
-              <span className="mr-2">📋</span> Staff Portal (Bola)
-            </Button>
-            <Button variant="outline" onClick={() => { signIn("rider", "Michael Eze"); navigate("/rider") }}>
-              <span className="mr-2">🛵</span> Rider App (Michael)
-            </Button>
-            <Button variant="outline" onClick={() => { signIn("admin", "Sarah Okonkwo"); navigate("/admin") }}>
-              <span className="mr-2">📊</span> Admin Dashboard (Sarah)
-            </Button>
-            <Button variant="outline" onClick={() => { signIn("super-admin", "Uche Nwankwo"); navigate("/super-admin") }}>
-              <span className="mr-2">🔐</span> Super Admin (Uche)
-            </Button>
           </div>
         </form>
       </div>

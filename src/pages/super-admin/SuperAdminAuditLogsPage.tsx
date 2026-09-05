@@ -33,18 +33,32 @@ export function SuperAdminAuditLogsPage() {
       </div>
 
       <div className="rounded-lg border border-navy-800 bg-navy-950 overflow-hidden">
-        <table className="w-full"><thead className="bg-navy-900/50"><tr className="text-left text-sm font-semibold text-navy-300 border-b border-navy-800"><th className="p-3">Timestamp</th><th className="p-3">User</th><th className="p-3">Action</th><th className="p-3">Resource</th><th className="p-3">Status</th><th className="p-3 w-40">Details</th></tr></thead><tbody className="divide-y divide-navy-800">
-          {filtered.map(a => (
-            <tr key={a.id} className="hover:bg-navy-900/50">
-              <td className="p-3 text-sm text-navy-300">{formatDateTime(a.timestamp)}</td>
-              <td className="p-3 text-sm text-white">{a.user}</td>
-              <td className="p-3 text-sm text-navy-300">{a.action}</td>
-              <td className="p-3 text-sm text-navy-300">{a.resource}</td>
-              <td className="p-3"><Badge variant={a.status === "SUCCESS" ? "success" : "destructive"}>{a.status}</Badge></td>
-              <td className="p-3 text-sm text-navy-400 max-w-xs truncate">{a.details || "—"}</td>
-            </tr>
-          ))}
-        </tbody></table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[650px]">
+            <thead className="bg-navy-900/50">
+              <tr className="text-left text-sm font-semibold text-navy-300 border-b border-navy-800">
+                <th className="p-3">Timestamp</th>
+                <th className="p-3">User</th>
+                <th className="p-3">Action</th>
+                <th className="p-3">Resource</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 w-40">Details</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-navy-800">
+              {filtered.map(a => (
+                <tr key={a.id} className="hover:bg-navy-900/50">
+                  <td className="p-3 text-sm text-navy-300">{formatDateTime(a.timestamp)}</td>
+                  <td className="p-3 text-sm text-white">{a.user}</td>
+                  <td className="p-3 text-sm text-navy-300">{a.action}</td>
+                  <td className="p-3 text-sm text-navy-300">{a.resource}</td>
+                  <td className="p-3"><Badge variant={a.status === "SUCCESS" ? "success" : "destructive"}>{a.status}</Badge></td>
+                  <td className="p-3 text-sm text-navy-400 max-w-xs truncate">{a.details || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

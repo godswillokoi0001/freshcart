@@ -1,4 +1,5 @@
 import type { Product, StockStatus } from "@app-types/index"
+import { getProductImages } from "./product-images"
 
 interface RawProduct {
   name: string
@@ -163,6 +164,7 @@ function daysAgo(n: number): string {
 
 export const products: Product[] = raw.map((r, i) => {
   const sku = `FC-${r.category.slice(0, 3).toUpperCase()}-${String(i + 1).padStart(4, "0")}`
+  const imgData = getProductImages(r.name, r.category)
   return {
     id: `prod-${i + 1}`,
     name: r.name,
@@ -177,8 +179,8 @@ export const products: Product[] = raw.map((r, i) => {
     sku,
     stock: r.stock,
     stockStatus: stockStatus(r.stock),
-    imageUrl: "",
-    images: [],
+    imageUrl: imgData.primary,
+    images: imgData.gallery,
     rating: 3.9 + ((i * 7) % 11) / 10,
     reviewCount: 4 + ((i * 13) % 86),
     status: "ACTIVE",

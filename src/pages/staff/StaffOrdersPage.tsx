@@ -5,7 +5,7 @@ import { Button } from "@components/ui/Button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/Select"
 import { Input } from "@components/ui/Input"
 import { EmptyState } from "@components/ui/EmptyState"
-import { adminOrders } from "@data/admin-orders"
+import { useOrders } from "@context/OrdersContext"
 import { OrderStatusBadge } from "@components/shared/StatusBadges"
 import { formatNaira, formatDate } from "@lib/format"
 import { cn } from "@lib/utils"
@@ -13,13 +13,14 @@ import { cn } from "@lib/utils"
 const statuses = ["PENDING", "CONFIRMED", "PREPARING", "PACKED", "READY_FOR_PICKUP", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"] as const
 
 export function StaffOrdersPage() {
+  const { orders } = useOrders()
   const [params, setParams] = useSearchParams()
   const statusFilter = params.get("status")
   const search = params.get("q") ?? ""
   const [searchInput, setSearchInput] = React.useState(search)
 
   const filtered = React.useMemo(() => {
-    let list = [...adminOrders]
+    let list = [...orders]
     if (search) {
       const q = search.toLowerCase()
       list = list.filter(
@@ -28,7 +29,7 @@ export function StaffOrdersPage() {
     }
     if (statusFilter) list = list.filter((o) => o.status === statusFilter)
     return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }, [search, statusFilter])
+  }, [orders, search, statusFilter])
 
   return (
     <div className="space-y-6">
@@ -61,23 +62,71 @@ export function StaffOrdersPage() {
       {filtered.length === 0 ? (
         <EmptyState icon={Package} title="No orders found" description="Try adjusting your filters or search terms." action={{ label: "Clear filters", onClick: () => setParams(new URLSearchParams()) }} />
       ) : (
-        <div className="rounded-lg border border-navy-200 bg-white divide-y divide-navy-100 overflow-hidden">
-          <div className="hidden px-4 py-3 font-medium text-sm text-navy-500 sm:grid grid-cols-[80px_1fr_1fr_80px_100px_100px_100px_100px] gap-4">
-            <span>Order</span><span>Customer</span><span>Items</span><span>Amount</span><span>Payment</span><span>Status</span><span>Date</span><span></span>
+        <>
+          {/* Mobile Card List (< sm) */}
+          <div className="block sm:hidden space-y-3">
+            {filtered.map((o) => (
+              <Link
+                key={o.id}
+                to={`/staff/orders/${o.id}`}
+                className="block rounded-lg border border-navy-200 bg-white p-4 shadow-2xs hover:border-fresh-300 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono font-bold text-navy-900 text-sm">{o.orderNumber}</span>
+                  <span className="font-bold text-navy-900 text-sm">{formatNaira(o.total)}</span>
+                </div>
+                <div className="mt-1 flex items-center justify-between text-xs text-navy-500">
+                  <span className="truncate">{o.customerName}</span>
+                  <span>{o.items.length} item{o.items.length !== 1 ? "s" : ""} · {o.paymentMethod}</span>
+                </div>
+                <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-navy-100">
+                  <OrderStatusBadge status={o.status} />
+                  <div className="flex items-center text-xs text-fresh-700 font-semibold shrink-0">
+                    Process <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-          {filtered.map((o) => (
-            <Link key={o.id} to={`/staff/orders/${o.id}`} className="grid grid-cols-[80px_1fr_1fr_80px_100px_100px_100px_100px_100px] gap-4 p-4 hover:bg-navy-50">
-              <span className="font-mono font-medium text-navy-900">{o.orderNumber}</span>
-              <span className="text-sm text-navy-700">{o.customerName}</span>
-              <span className="text-sm text-navy-500">{o.items.length} items</span>
-              <span className="font-semibold text-navy-900">{formatNaira(o.total)}</span>
-              <span className="text-sm text-navy-600">{o.paymentMethod}</span>
-              <span><OrderStatusBadge status={o.status} /></span>
-              <span className="text-sm text-navy-500">{formatDate(o.createdAt)}</span>
-              <ChevronRight className="h-5 w-5 text-navy-300" />
-            </Link>
-          ))}
-        </div>
+
+          {/* Desktop Table View (>= sm) */}
+          <div className="hidden sm:block rounded-lg border border-navy-200 bg-white overflow-hidden shadow-2xs">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px]">
+                <thead className="bg-navy-50">
+                  <tr className="text-left text-xs font-bold uppercase tracking-wider text-navy-500 border-b border-navy-200">
+                    <th className="p-3.5">Order</th>
+                    <th className="p-3.5">Customer</th>
+                    <th className="p-3.5">Items</th>
+                    <th className="p-3.5">Amount</th>
+                    <th className="p-3.5">Payment</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5">Date</th>
+                    <th className="p-3.5 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-navy-100 text-sm">
+                  {filtered.map((o) => (
+                    <tr key={o.id} className="hover:bg-navy-50/70 transition-colors">
+                      <td className="p-3.5 font-mono font-semibold text-navy-900">{o.orderNumber}</td>
+                      <td className="p-3.5 font-medium text-navy-800">{o.customerName}</td>
+                      <td className="p-3.5 text-navy-500">{o.items.length} items</td>
+                      <td className="p-3.5 font-bold text-navy-900">{formatNaira(o.total)}</td>
+                      <td className="p-3.5 text-navy-600 text-xs font-medium">{o.paymentMethod}</td>
+                      <td className="p-3.5"><OrderStatusBadge status={o.status} /></td>
+                      <td className="p-3.5 text-xs text-navy-500">{formatDate(o.createdAt)}</td>
+                      <td className="p-3.5 text-right">
+                        <Link to={`/staff/orders/${o.id}`} className="text-xs font-semibold text-fresh-700 hover:text-fresh-800 hover:underline">
+                          Process
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

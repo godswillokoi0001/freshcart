@@ -28,18 +28,30 @@ export function AdminBrandsPage() {
       </div>
 
       <div className="rounded-lg border border-navy-200 bg-white overflow-hidden">
-        <table className="w-full"><thead className="bg-navy-50"><tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200"><th className="p-3 w-12">Logo</th><th className="p-3">Name</th><th className="p-3">Products</th><th className="p-3">Status</th><th className="p-3 w-32">Actions</th></tr></thead>
-        <tbody className="divide-y divide-navy-100">
-          {filtered.map(b => (
-            <tr key={b.id} className="hover:bg-navy-50">
-              <td className="p-3"><div className="h-10 w-10 rounded bg-navy-50 flex items-center justify-center text-lg">🏷️</div></td>
-              <td className="p-3 font-medium text-navy-900">{b.name}</td>
-              <td className="p-3 text-sm text-navy-500">{b.productCount}</td>
-              <td className="p-3"><span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-success-50 text-success-600">{b.status}</span></td>
-              <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(b)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-danger-600"><Trash2 className="h-4 w-4" /></Button></td>
-            </tr>
-          ))}
-        </tbody></table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[500px]">
+            <thead className="bg-navy-50">
+              <tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200">
+                <th className="p-3 w-12">Logo</th>
+                <th className="p-3">Name</th>
+                <th className="p-3">Products</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 w-32">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-navy-100">
+              {filtered.map(b => (
+                <tr key={b.id} className="hover:bg-navy-50">
+                  <td className="p-3"><div className="h-10 w-10 rounded bg-navy-50 flex items-center justify-center text-lg">🏷️</div></td>
+                  <td className="p-3 font-medium text-navy-900">{b.name}</td>
+                  <td className="p-3 text-sm text-navy-500">{b.productCount}</td>
+                  <td className="p-3"><span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-success-50 text-success-600">{b.status}</span></td>
+                  <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(b)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-danger-600"><Trash2 className="h-4 w-4" /></Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

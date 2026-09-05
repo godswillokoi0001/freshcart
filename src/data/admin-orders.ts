@@ -1,7 +1,17 @@
 import type { Order, OrderItem, OrderStatus, PaymentStatus } from "@app-types/index"
+import { products } from "./products"
 
 function makeItem(name: string, brand: string, unit: string, price: number, qty: number, productId: string): OrderItem {
-  return { productId, name, brand, unit, imageUrl: "", price, quantity: qty }
+  const p = products.find((x) => x.id === productId)
+  return {
+    productId,
+    name,
+    brand,
+    unit,
+    imageUrl: p?.imageUrl || "",
+    price,
+    quantity: qty,
+  }
 }
 
 type RawOrder = {

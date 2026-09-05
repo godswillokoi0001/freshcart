@@ -30,22 +30,41 @@ export function AdminCategoriesPage() {
         <div className="flex flex-wrap gap-3"><div className="relative min-w-0 flex-1 sm:max-w-sm"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" /><Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search categories…" className="h-10 pl-9" /></div><Button onClick={handleCreate}><Plus className="h-4 w-4" /> Add Category</Button></div>
       </div>
 
-      <div className="rounded-lg border border-navy-200 bg-white overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-navy-50"><tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200"><th className="p-3 w-12">Image</th><th className="p-3">Name</th><th className="p-3">Slug</th><th className="p-3">Products</th><th className="p-3">Status</th><th className="p-3 w-32">Actions</th></tr></thead>
-          <tbody className="divide-y divide-navy-100">
-            {filtered.map(c => (
-              <tr key={c.id} className="hover:bg-navy-50">
-                <td className="p-3"><div className="h-10 w-10 rounded bg-navy-50 flex items-center justify-center text-lg">🛒</div></td>
-                <td className="p-3 font-medium text-navy-900">{c.name}</td>
-                <td className="p-3 text-sm text-navy-500 font-mono">{c.slug}</td>
-                <td className="p-3 text-sm text-navy-500">{c.productCount}</td>
-                <td className="p-3"><span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", c.status === "ACTIVE" ? "bg-success-50 text-success-600" : "bg-navy-100 text-navy-600")}>{c.status}</span></td>
-                <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(c)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-danger-600"><Trash2 className="h-4 w-4" /></Button></td>
+      <div className="rounded-lg border border-navy-200 bg-white overflow-hidden shadow-2xs">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[550px]">
+            <thead className="bg-navy-50">
+              <tr className="text-left text-xs font-bold uppercase tracking-wider text-navy-500 border-b border-navy-200">
+                <th className="p-3.5 w-14">Image</th>
+                <th className="p-3.5">Name</th>
+                <th className="p-3.5">Slug</th>
+                <th className="p-3.5">Products</th>
+                <th className="p-3.5">Status</th>
+                <th className="p-3.5 w-24 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-navy-100 text-sm">
+              {filtered.map(c => (
+                <tr key={c.id} className="hover:bg-navy-50/70 transition-colors">
+                  <td className="p-3.5"><div className="h-10 w-10 rounded bg-navy-50 flex items-center justify-center text-lg">🛒</div></td>
+                  <td className="p-3.5 font-semibold text-navy-900">{c.name}</td>
+                  <td className="p-3.5 text-xs text-navy-500 font-mono">{c.slug}</td>
+                  <td className="p-3.5 text-navy-600">{c.productCount}</td>
+                  <td className="p-3.5"><span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", c.status === "ACTIVE" ? "bg-success-50 text-success-700" : "bg-navy-100 text-navy-600")}>{c.status}</span></td>
+                  <td className="p-3.5 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(c)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="text-danger-600 hover:text-danger-700"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length === 0 && (
+            <div className="p-8 text-center text-sm text-navy-500">No categories found</div>
+          )}
+        </div>
       </div>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

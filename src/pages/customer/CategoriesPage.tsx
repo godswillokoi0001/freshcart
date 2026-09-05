@@ -13,7 +13,7 @@ export function CategoriesPage() {
       </nav>
       <h1 className="text-3xl font-bold text-navy-900">All Categories</h1>
       <p className="mt-1 text-sm text-navy-500">Browse every aisle of the FreshCart supermarket.</p>
-      <div className="mt-8 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+      <div className="mt-8 grid grid-cols-2 gap-3 xs:grid-cols-3 xs:gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {categories.map((c) => (
           <CategoryCard key={c.id} category={c} />
         ))}

@@ -2,7 +2,9 @@ import { Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider } from "@context/AuthContext"
 import { CartProvider } from "@context/CartContext"
 import { WishlistProvider } from "@context/WishlistContext"
+import { OrdersProvider } from "@context/OrdersContext"
 import { AppToastProvider } from "@context/ToastContext"
+import { RequireAuth } from "@components/shared/RequireAuth"
 
 // Customer Layout & Pages
 import { CustomerLayout } from "@components/layout/CustomerLayout"
@@ -75,101 +77,160 @@ import { SuperAdminSystemSettingsPage } from "@pages/super-admin/SuperAdminSyste
 // Error Pages
 import { NotFoundPage, ForbiddenPage, ServerErrorPage, OfflinePage } from "@pages/ErrorPages"
 
-function RequireAuth({ children, role }: { children: React.ReactNode; role?: string }) {
-  return <>{children}</>
-}
-
 export default function App() {
   return (
     <AuthProvider>
       <AppToastProvider>
         <CartProvider>
           <WishlistProvider>
-            <Routes>
-              {/* Customer Routes */}
-              <Route element={<CustomerLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/shop" element={<ShopPage />} />
-                <Route path="/categories" element={<CategoriesPage />} />
-                <Route path="/categories/:category" element={<CategoryPage />} />
-                <Route path="/deals" element={<DealsPage />} />
-                <Route path="/products/:product" element={<ProductPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/orders/:id" element={<OrderDetailPage />} />
-                <Route path="/wishlist" element={<WishlistPage />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/account" element={<AccountPage />} />
-              </Route>
+            <OrdersProvider>
+              <Routes>
+                {/* Customer Public & Protected Routes */}
+                <Route element={<CustomerLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/categories" element={<CategoriesPage />} />
+                  <Route path="/categories/:category" element={<CategoryPage />} />
+                  <Route path="/deals" element={<DealsPage />} />
+                  <Route path="/products/:product" element={<ProductPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
 
-              {/* Auth Routes */}
-              <Route path="/sign-in" element={<SignInPage />} />
-              <Route path="/sign-up" element={<SignUpPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
+                  {/* Customer Authenticated Routes */}
+                  <Route
+                    path="/checkout"
+                    element={
+                      <RequireAuth>
+                        <CheckoutPage />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/orders"
+                    element={
+                      <RequireAuth>
+                        <OrdersPage />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/orders/:id"
+                    element={
+                      <RequireAuth>
+                        <OrderDetailPage />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/notifications"
+                    element={
+                      <RequireAuth>
+                        <NotificationsPage />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/account"
+                    element={
+                      <RequireAuth>
+                        <AccountPage />
+                      </RequireAuth>
+                    }
+                  />
+                </Route>
 
-              {/* Staff Routes */}
-              <Route element={<StaffLayout />}>
-                <Route path="/staff" element={<StaffDashboardPage />} />
-                <Route path="/staff/orders" element={<StaffOrdersPage />} />
-                <Route path="/staff/orders/:id" element={<StaffOrderDetailPage />} />
-                <Route path="/staff/inventory" element={<StaffInventoryPage />} />
-                <Route path="/staff/profile" element={<StaffProfilePage />} />
-              </Route>
+                {/* Auth Routes */}
+                <Route path="/sign-in" element={<SignInPage />} />
+                <Route path="/sign-up" element={<SignUpPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-              {/* Rider Routes */}
-              <Route element={<RiderLayout />}>
-                <Route path="/rider" element={<RiderDashboardPage />} />
-                <Route path="/rider/deliveries" element={<RiderDeliveriesPage />} />
-                <Route path="/rider/deliveries/:id" element={<RiderDeliveryDetailPage />} />
-                <Route path="/rider/history" element={<RiderHistoryPage />} />
-                <Route path="/rider/earnings" element={<RiderEarningsPage />} />
-                <Route path="/rider/profile" element={<RiderProfilePage />} />
-              </Route>
+                {/* Staff Protected Routes */}
+                <Route
+                  element={
+                    <RequireAuth roles={["staff", "admin", "super-admin"]}>
+                      <StaffLayout />
+                    </RequireAuth>
+                  }
+                >
+                  <Route path="/staff" element={<StaffDashboardPage />} />
+                  <Route path="/staff/orders" element={<StaffOrdersPage />} />
+                  <Route path="/staff/orders/:id" element={<StaffOrderDetailPage />} />
+                  <Route path="/staff/inventory" element={<StaffInventoryPage />} />
+                  <Route path="/staff/profile" element={<StaffProfilePage />} />
+                </Route>
 
-              {/* Admin Routes */}
-              <Route element={<AdminLayout />}>
-                <Route path="/admin" element={<AdminDashboardPage />} />
-                <Route path="/admin/orders" element={<AdminOrdersPage />} />
-                <Route path="/admin/products" element={<AdminProductsPage />} />
-                <Route path="/admin/categories" element={<AdminCategoriesPage />} />
-                <Route path="/admin/brands" element={<AdminBrandsPage />} />
-                <Route path="/admin/inventory" element={<AdminInventoryPage />} />
-                <Route path="/admin/customers" element={<AdminCustomersPage />} />
-                <Route path="/admin/customers/:id" element={<AdminCustomerDetailPage />} />
-                <Route path="/admin/staff" element={<AdminStaffPage />} />
-                <Route path="/admin/riders" element={<AdminRidersPage />} />
-                <Route path="/admin/deliveries" element={<AdminDeliveriesPage />} />
-                <Route path="/admin/coupons" element={<AdminCouponsPage />} />
-                <Route path="/admin/promotions" element={<AdminPromotionsPage />} />
-                <Route path="/admin/reviews" element={<AdminReviewsPage />} />
-                <Route path="/admin/support" element={<AdminSupportPage />} />
-                <Route path="/admin/reports" element={<AdminReportsPage />} />
-                <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
-                <Route path="/admin/settings" element={<AdminSettingsPage />} />
-              </Route>
+                {/* Rider Protected Routes */}
+                <Route
+                  element={
+                    <RequireAuth roles={["rider", "admin", "super-admin"]}>
+                      <RiderLayout />
+                    </RequireAuth>
+                  }
+                >
+                  <Route path="/rider" element={<RiderDashboardPage />} />
+                  <Route path="/rider/deliveries" element={<RiderDeliveriesPage />} />
+                  <Route path="/rider/deliveries/:id" element={<RiderDeliveryDetailPage />} />
+                  <Route path="/rider/history" element={<RiderHistoryPage />} />
+                  <Route path="/rider/earnings" element={<RiderEarningsPage />} />
+                  <Route path="/rider/profile" element={<RiderProfilePage />} />
+                </Route>
 
-              {/* Super Admin Routes */}
-              <Route element={<SuperAdminLayout />}>
-                <Route path="/super-admin" element={<SuperAdminDashboardPage />} />
-                <Route path="/super-admin/admins" element={<SuperAdminAdminsPage />} />
-                <Route path="/super-admin/permissions" element={<SuperAdminPermissionsPage />} />
-                <Route path="/super-admin/security" element={<SuperAdminSecurityPage />} />
-                <Route path="/super-admin/audit-logs" element={<SuperAdminAuditLogsPage />} />
-                <Route path="/super-admin/system-settings" element={<SuperAdminSystemSettingsPage />} />
-              </Route>
+                {/* Admin Protected Routes */}
+                <Route
+                  element={
+                    <RequireAuth roles={["admin", "super-admin"]}>
+                      <AdminLayout />
+                    </RequireAuth>
+                  }
+                >
+                  <Route path="/admin" element={<AdminDashboardPage />} />
+                  <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                  <Route path="/admin/products" element={<AdminProductsPage />} />
+                  <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+                  <Route path="/admin/brands" element={<AdminBrandsPage />} />
+                  <Route path="/admin/inventory" element={<AdminInventoryPage />} />
+                  <Route path="/admin/customers" element={<AdminCustomersPage />} />
+                  <Route path="/admin/customers/:id" element={<AdminCustomerDetailPage />} />
+                  <Route path="/admin/staff" element={<AdminStaffPage />} />
+                  <Route path="/admin/riders" element={<AdminRidersPage />} />
+                  <Route path="/admin/deliveries" element={<AdminDeliveriesPage />} />
+                  <Route path="/admin/coupons" element={<AdminCouponsPage />} />
+                  <Route path="/admin/promotions" element={<AdminPromotionsPage />} />
+                  <Route path="/admin/reviews" element={<AdminReviewsPage />} />
+                  <Route path="/admin/support" element={<AdminSupportPage />} />
+                  <Route path="/admin/reports" element={<AdminReportsPage />} />
+                  <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+                  <Route path="/admin/settings" element={<AdminSettingsPage />} />
+                </Route>
 
-              {/* Error Pages */}
-              <Route path="/404" element={<NotFoundPage />} />
-              <Route path="/403" element={<ForbiddenPage />} />
-              <Route path="/500" element={<ServerErrorPage />} />
-              <Route path="/offline" element={<OfflinePage />} />
+                {/* Super Admin Protected Routes */}
+                <Route
+                  element={
+                    <RequireAuth roles={["super-admin"]}>
+                      <SuperAdminLayout />
+                    </RequireAuth>
+                  }
+                >
+                  <Route path="/super-admin" element={<SuperAdminDashboardPage />} />
+                  <Route path="/super-admin/admins" element={<SuperAdminAdminsPage />} />
+                  <Route path="/super-admin/permissions" element={<SuperAdminPermissionsPage />} />
+                  <Route path="/super-admin/security" element={<SuperAdminSecurityPage />} />
+                  <Route path="/super-admin/audit-logs" element={<SuperAdminAuditLogsPage />} />
+                  <Route path="/super-admin/system-settings" element={<SuperAdminSystemSettingsPage />} />
+                </Route>
 
-              {/* Catch-all */}
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
+                {/* Error Pages */}
+                <Route path="/404" element={<NotFoundPage />} />
+                <Route path="/403" element={<ForbiddenPage />} />
+                <Route path="/500" element={<ServerErrorPage />} />
+                <Route path="/offline" element={<OfflinePage />} />
+
+                {/* Catch-all */}
+                <Route path="*" element={<Navigate to="/404" replace />} />
+              </Routes>
+            </OrdersProvider>
           </WishlistProvider>
         </CartProvider>
       </AppToastProvider>

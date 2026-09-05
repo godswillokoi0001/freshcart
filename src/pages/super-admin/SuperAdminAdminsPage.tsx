@@ -39,19 +39,34 @@ export function SuperAdminAdminsPage() {
       </div>
 
       <div className="rounded-lg border border-navy-800 bg-navy-950 overflow-hidden">
-        <table className="w-full"><thead className="bg-navy-900/50"><tr className="text-left text-sm font-semibold text-navy-300 border-b border-navy-800"><th className="p-3">Admin</th><th className="p-3">Email</th><th className="p-3">Role</th><th className="p-3">Status</th><th className="p-3 hidden md:table-cell">Last Active</th><th className="p-3 hidden md:table-cell">Created</th><th className="p-3 w-32">Actions</th></tr></thead><tbody className="divide-y divide-navy-800">
-          {filtered.map(a => (
-            <tr key={a.id} className="hover:bg-navy-900/50">
-              <td className="p-3"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-fresh-900/30 text-fresh-400 font-semibold">{a.name.split(" ").map(n => n[0]).join("")}</div><p className="font-medium text-white">{a.name}</p></div></td>
-              <td className="p-3 text-sm text-navy-400">{a.email}</td>
-              <td className="p-3"><Badge variant="default">{a.role}</Badge></td>
-              <td className="p-3"><Badge variant={a.status === "ACTIVE" ? "success" : "default"}>{a.status}</Badge></td>
-              <td className="p-3 hidden md:table-cell text-sm text-navy-400">{a.lastActive}</td>
-              <td className="p-3 hidden md:table-cell text-sm text-navy-400">{formatDate(a.createdAt)}</td>
-              <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(a)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-red-400"><Trash2 className="h-4 w-4" /></Button></td>
-            </tr>
-          ))}
-        </tbody></table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[650px]">
+            <thead className="bg-navy-900/50">
+              <tr className="text-left text-sm font-semibold text-navy-300 border-b border-navy-800">
+                <th className="p-3">Admin</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 hidden md:table-cell">Last Active</th>
+                <th className="p-3 hidden md:table-cell">Created</th>
+                <th className="p-3 w-32">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-navy-800">
+              {filtered.map(a => (
+                <tr key={a.id} className="hover:bg-navy-900/50">
+                  <td className="p-3"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-fresh-900/30 text-fresh-400 font-semibold">{a.name.split(" ").map(n => n[0]).join("")}</div><p className="font-medium text-white">{a.name}</p></div></td>
+                  <td className="p-3 text-sm text-navy-400">{a.email}</td>
+                  <td className="p-3"><Badge variant="default">{a.role}</Badge></td>
+                  <td className="p-3"><Badge variant={a.status === "ACTIVE" ? "success" : "default"}>{a.status}</Badge></td>
+                  <td className="p-3 hidden md:table-cell text-sm text-navy-400">{a.lastActive}</td>
+                  <td className="p-3 hidden md:table-cell text-sm text-navy-400">{formatDate(a.createdAt)}</td>
+                  <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(a)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-red-400"><Trash2 className="h-4 w-4" /></Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

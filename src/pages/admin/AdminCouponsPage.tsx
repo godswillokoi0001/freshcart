@@ -37,25 +37,68 @@ export function AdminCouponsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div><h1 className="text-2xl font-bold text-navy-900">Coupon Management</h1><p className="mt-1 text-sm text-navy-500">{filtered.length} coupon{filtered.length !== 1 ? "s" : ""}</p></div>
-        <div className="flex flex-wrap gap-3"><div className="relative min-w-0 flex-1 sm:max-w-sm"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" /><Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search coupon codes…" className="h-10 pl-9" /></div><Select value={typeFilter} onValueChange={setTypeFilter}><SelectTrigger className="w-36"><SelectValue placeholder="Type" /></SelectTrigger><SelectContent>{types.map(t => <SelectItem key={t} value={t}>{t === "all" ? "All Types" : t}</SelectItem>)}</SelectContent></Select><Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-36"><SelectValue placeholder="Status" /></SelectTrigger><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s === "all" ? "All" : s}</SelectItem>)}</SelectContent></Select><Button onClick={handleCreate}><Plus className="h-4 w-4" /> Create Coupon</Button></div>
+        <div>
+          <h1 className="text-2xl font-bold text-navy-900">Coupon Management</h1>
+          <p className="mt-1 text-sm text-navy-500">{filtered.length} coupon{filtered.length !== 1 ? "s" : ""}</p>
+        </div>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 sm:items-center">
+          <div className="relative w-full sm:w-60">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search coupon codes…" className="h-10 pl-9 w-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2.5">
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="Type" /></SelectTrigger>
+              <SelectContent>{types.map(t => <SelectItem key={t} value={t}>{t === "all" ? "All Types" : t}</SelectItem>)}</SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s === "all" ? "All" : s}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleCreate} className="w-full sm:w-auto"><Plus className="h-4 w-4" /> Create Coupon</Button>
+        </div>
       </div>
 
-      <div className="rounded-lg border border-navy-200 bg-white overflow-hidden">
-        <table className="w-full"><thead className="bg-navy-50"><tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200"><th className="p-3">Code</th><th className="p-3">Type</th><th className="p-3">Value</th><th className="p-3">Min Order</th><th className="p-3">Expires</th><th className="p-3">Usage</th><th className="p-3">Status</th><th className="p-3 w-32">Actions</th></tr></thead><tbody className="divide-y divide-navy-100">
-          {filtered.map(c => (
-            <tr key={c.id} className="hover:bg-navy-50">
-              <td className="p-3 font-mono font-medium text-navy-900">{c.code}</td>
-              <td className="p-3"><Badge variant="default">{c.discountType}</Badge></td>
-              <td className="p-3 font-medium text-navy-900">{c.discountType === "PERCENTAGE" ? c.discountValue + "%" : formatNaira(c.discountValue)}</td>
-              <td className="p-3 text-sm text-navy-500">{c.minOrder > 0 ? formatNaira(c.minOrder) : "No minimum"}</td>
-              <td className="p-3 text-sm text-navy-500">{formatDate(c.expiresAt)}</td>
-              <td className="p-3 text-sm text-navy-500">{c.usageLimit > 0 ? `${c.usedCount} / ${c.usageLimit}` : `${c.usedCount} / ∞`}</td>
-              <td className="p-3"><Badge variant={c.status === "ACTIVE" ? "success" : c.status === "EXPIRED" ? "default" : "destructive"}>{c.status}</Badge></td>
-              <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(c)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-danger-600"><Trash2 className="h-4 w-4" /></Button></td>
-            </tr>
-          ))}
-        </tbody></table>
+      <div className="rounded-lg border border-navy-200 bg-white overflow-hidden shadow-2xs">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[650px]">
+            <thead className="bg-navy-50">
+              <tr className="text-left text-xs font-bold uppercase tracking-wider text-navy-500 border-b border-navy-200">
+                <th className="p-3.5">Code</th>
+                <th className="p-3.5">Type</th>
+                <th className="p-3.5">Value</th>
+                <th className="p-3.5">Min Order</th>
+                <th className="p-3.5">Expires</th>
+                <th className="p-3.5">Usage</th>
+                <th className="p-3.5">Status</th>
+                <th className="p-3.5 w-24 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-navy-100 text-sm">
+              {filtered.map(c => (
+                <tr key={c.id} className="hover:bg-navy-50/70 transition-colors">
+                  <td className="p-3.5 font-mono font-bold text-navy-900">{c.code}</td>
+                  <td className="p-3.5"><Badge variant="default">{c.discountType}</Badge></td>
+                  <td className="p-3.5 font-semibold text-navy-900">{c.discountType === "PERCENTAGE" ? c.discountValue + "%" : formatNaira(c.discountValue)}</td>
+                  <td className="p-3.5 text-navy-500">{c.minOrder > 0 ? formatNaira(c.minOrder) : "No minimum"}</td>
+                  <td className="p-3.5 text-xs text-navy-500">{formatDate(c.expiresAt)}</td>
+                  <td className="p-3.5 text-navy-600">{c.usageLimit > 0 ? `${c.usedCount} / ${c.usageLimit}` : `${c.usedCount} / ∞`}</td>
+                  <td className="p-3.5"><Badge variant={c.status === "ACTIVE" ? "success" : c.status === "EXPIRED" ? "default" : "destructive"}>{c.status}</Badge></td>
+                  <td className="p-3.5 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(c)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="text-danger-600 hover:text-danger-700"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length === 0 && (
+            <div className="p-8 text-center text-sm text-navy-500">No coupons found</div>
+          )}
+        </div>
       </div>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

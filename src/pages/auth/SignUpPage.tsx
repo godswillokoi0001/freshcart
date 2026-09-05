@@ -11,8 +11,8 @@ import { cn } from "@lib/utils"
 
 export function SignUpPage() {
   const navigate = useNavigate()
-  const { signIn } = useAuth()
-  const { success } = useToast()
+  const { register } = useAuth()
+  const { success, error: toastError } = useToast()
   const [form, setForm] = React.useState({ name: "", email: "", phone: "", password: "", confirm: "" })
   const [showPassword, setShowPassword] = React.useState(false)
   const [errors, setErrors] = React.useState<Record<string, string>>({})
@@ -36,15 +36,26 @@ export function SignUpPage() {
     e.preventDefault()
     if (!validate()) return
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    signIn("customer", form.name)
-    setLoading(false)
-    success("Account created!", "Welcome to FreshCart")
-    navigate("/account")
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+      })
+      success("Account created!", "Welcome to FreshCart")
+      navigate("/account")
+    } catch (err: any) {
+      const msg = err.message || "Failed to create account"
+      toastError("Registration failed", msg)
+      setErrors({ form: msg })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-navy-50 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-navy-50 py-12 px-4 sm:px-6">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Logo className="mx-auto" />
@@ -52,7 +63,13 @@ export function SignUpPage() {
           <p className="mt-2 text-sm text-navy-500">Join FreshCart and start shopping fresh</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-navy-200 bg-white p-6 shadow-sm" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-navy-200 bg-white p-6 sm:p-8 shadow-sm" noValidate>
+          {errors.form && (
+            <div className="p-3 bg-danger-50 border border-danger-200 text-danger-700 rounded-lg text-sm">
+              {errors.form}
+            </div>
+          )}
+
           <div>
             <Label htmlFor="name">Full Name</Label>
             <div className="relative mt-1">
@@ -60,7 +77,7 @@ export function SignUpPage() {
               <Input
                 id="name"
                 value={form.name}
-                onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors((p) => ({ ...p, name: "" })) }}
+                onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors((p) => ({ ...p, name: "", form: "" })) }}
                 placeholder="Amaka Obi"
                 className={cn("pl-9", errors.name && "border-danger-500 focus:border-danger-500")}
                 autoComplete="name"
@@ -78,7 +95,7 @@ export function SignUpPage() {
                 id="email"
                 type="email"
                 value={form.email}
-                onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors((p) => ({ ...p, email: "" })) }}
+                onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors((p) => ({ ...p, email: "", form: "" })) }}
                 placeholder="you@example.com"
                 className={cn("pl-9", errors.email && "border-danger-500 focus:border-danger-500")}
                 autoComplete="email"
@@ -95,9 +112,12 @@ export function SignUpPage() {
                 id="phone"
                 type="tel"
                 value={form.phone}
-                onChange={(e) => { setForm({ ...form, phone: e.target.value }); setErrors((p) => ({ ...p, phone: "" })) }}
+                onChange={(e) => { setForm({ ...form, phone: e.target.value }); setErrors((p) => ({ ...p, phone: "", form: "" })) }}
                 placeholder="+234 803 555 1234"
-                className={cn("pl-9", errors.phone && "border-danger-500 focus:border-danger-500")}
+                className={cn(
+                  "w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-fresh-500 pl-9",
+                  errors.phone && "border-danger-500 focus:border-danger-500"
+                )}
                 autoComplete="tel"
                 disabled={loading}
               />
@@ -113,7 +133,7 @@ export function SignUpPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={form.password}
-                onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors((p) => ({ ...p, password: "" })) }}
+                onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors((p) => ({ ...p, password: "", form: "" })) }}
                 placeholder="••••••••"
                 className={cn("pl-9 pr-10", errors.password && "border-danger-500 focus:border-danger-500")}
                 autoComplete="new-password"
@@ -139,7 +159,7 @@ export function SignUpPage() {
                 id="confirm"
                 type={showPassword ? "text" : "password"}
                 value={form.confirm}
-                onChange={(e) => { setForm({ ...form, confirm: e.target.value }); setErrors((p) => ({ ...p, confirm: "" })) }}
+                onChange={(e) => { setForm({ ...form, confirm: e.target.value }); setErrors((p) => ({ ...p, confirm: "", form: "" })) }}
                 placeholder="••••••••"
                 className={cn("pl-9", errors.confirm && "border-danger-500 focus:border-danger-500")}
                 autoComplete="new-password"

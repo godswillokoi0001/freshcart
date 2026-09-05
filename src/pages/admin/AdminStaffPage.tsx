@@ -38,23 +38,69 @@ export function AdminStaffPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div><h1 className="text-2xl font-bold text-navy-900">Staff Management</h1><p className="mt-1 text-sm text-navy-500">{filtered.length} staff member{filtered.length !== 1 ? "s" : ""}</p></div>
-        <div className="flex flex-wrap gap-3"><div className="relative min-w-0 flex-1 sm:max-w-sm"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" /><Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…" className="h-10 pl-9" /></div><Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}><SelectTrigger className="w-32"><SelectValue placeholder="Status" /></SelectTrigger><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s === "all" ? "All" : s}</SelectItem>)}</SelectContent></Select><Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as typeof roleFilter)}><SelectTrigger className="w-36"><SelectValue placeholder="Role" /></SelectTrigger><SelectContent>{["all", ...roles].map(r => <SelectItem key={r} value={r}>{r === "all" ? "All Roles" : r}</SelectItem>)}</SelectContent></Select><Button onClick={handleCreate}><UserPlus className="h-4 w-4" /> Invite Staff</Button></div>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 sm:items-center">
+          <div className="relative w-full sm:w-60">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…" className="h-10 pl-9 w-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2.5">
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}>
+              <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s === "all" ? "All Status" : s}</SelectItem>)}</SelectContent>
+            </Select>
+            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as typeof roleFilter)}>
+              <SelectTrigger className="w-full sm:w-36"><SelectValue placeholder="Role" /></SelectTrigger>
+              <SelectContent>{["all", ...roles].map(r => <SelectItem key={r} value={r}>{r === "all" ? "All Roles" : r}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleCreate} className="w-full sm:w-auto"><UserPlus className="h-4 w-4" /> Invite Staff</Button>
+        </div>
       </div>
 
-      <div className="rounded-lg border border-navy-200 bg-white overflow-hidden">
-        <table className="w-full"><thead className="bg-navy-50"><tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200"><th className="p-3">Staff</th><th className="p-3">Email</th><th className="p-3">Role</th><th className="p-3">Status</th><th className="p-3 hidden md:table-cell">Last Active</th><th className="p-3">Orders Fulfilled</th><th className="p-3 w-32">Actions</th></tr></thead><tbody className="divide-y divide-navy-100">
-          {filtered.map(s => (
-            <tr key={s.id} className="hover:bg-navy-50">
-              <td className="p-3"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-fresh-100 text-fresh-700 font-semibold">{s.name.split(" ").map(n => n[0]).join("")}</div><p className="font-medium text-navy-900">{s.name}</p></div></td>
-              <td className="p-3 text-sm text-navy-500">{s.email}</td>
-              <td className="p-3"><Badge variant="default">{s.role}</Badge></td>
-              <td className="p-3"><Badge variant={s.status === "ACTIVE" ? "success" : "default"}>{s.status}</Badge></td>
-              <td className="p-3 hidden md:table-cell text-sm text-navy-500">{s.lastActive}</td>
-              <td className="p-3 text-sm text-navy-500">{s.ordersFulfilled}</td>
-              <td className="p-3 flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => handleEdit(s)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="text-danger-600"><Trash2 className="h-4 w-4" /></Button></td>
-            </tr>
-          ))}
-        </tbody></table>
+      <div className="rounded-lg border border-navy-200 bg-white overflow-hidden shadow-2xs">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[650px]">
+            <thead className="bg-navy-50">
+              <tr className="text-left text-xs font-bold uppercase tracking-wider text-navy-500 border-b border-navy-200">
+                <th className="p-3.5">Staff</th>
+                <th className="p-3.5">Email</th>
+                <th className="p-3.5">Role</th>
+                <th className="p-3.5">Status</th>
+                <th className="p-3.5">Last Active</th>
+                <th className="p-3.5 text-center">Orders Fulfilled</th>
+                <th className="p-3.5 w-24 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-navy-100 text-sm">
+              {filtered.map(s => (
+                <tr key={s.id} className="hover:bg-navy-50/70 transition-colors">
+                  <td className="p-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fresh-100 text-fresh-700 font-bold text-xs">
+                        {s.name.split(" ").map(n => n[0]).join("")}
+                      </div>
+                      <p className="font-semibold text-navy-900">{s.name}</p>
+                    </div>
+                  </td>
+                  <td className="p-3.5 text-navy-500">{s.email}</td>
+                  <td className="p-3.5"><Badge variant="default">{s.role}</Badge></td>
+                  <td className="p-3.5"><Badge variant={s.status === "ACTIVE" ? "success" : "default"}>{s.status}</Badge></td>
+                  <td className="p-3.5 text-xs text-navy-500">{s.lastActive}</td>
+                  <td className="p-3.5 text-center font-semibold text-navy-800">{s.ordersFulfilled}</td>
+                  <td className="p-3.5 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(s)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="text-danger-600 hover:text-danger-700"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length === 0 && (
+            <div className="p-8 text-center text-sm text-navy-500">No staff found</div>
+          )}
+        </div>
       </div>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

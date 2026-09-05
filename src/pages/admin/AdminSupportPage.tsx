@@ -33,20 +33,36 @@ export function AdminSupportPage() {
       </div>
 
       <div className="rounded-lg border border-navy-200 bg-white overflow-hidden">
-        <table className="w-full"><thead className="bg-navy-50"><tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200"><th className="p-3">Subject</th><th className="p-3">Customer</th><th className="p-3">Category</th><th className="p-3">Priority</th><th className="p-3">Status</th><th className="p-3">Created</th><th className="p-3">Last Reply</th><th className="p-3 w-16">Actions</th></tr></thead><tbody className="divide-y divide-navy-100">
-          {filtered.map(t => (
-            <tr key={t.id} className="hover:bg-navy-50">
-              <td className="p-3"><Link to="#" className="font-medium text-navy-900 hover:text-fresh-700">{t.subject}</Link></td>
-              <td className="p-3 text-sm text-navy-500">{t.customer}</td>
-              <td className="p-3 text-sm text-navy-500">{t.category}</td>
-              <td className="p-3"><Badge variant={t.priority === "HIGH" ? "destructive" : t.priority === "MEDIUM" ? "warning" : "default"}>{t.priority}</Badge></td>
-              <td className="p-3"><Badge variant={t.status === "OPEN" ? "info" : t.status === "IN_PROGRESS" ? "warning" : t.status === "RESOLVED" ? "success" : "default"}>{t.status.replace("_", " ")}</Badge></td>
-              <td className="p-3 text-sm text-navy-500">{formatDateTime(t.createdAt)}</td>
-              <td className="p-3 text-sm text-navy-500">{formatDateTime(t.lastReply)}</td>
-              <td className="p-3"><Link to="#" className="text-fresh-700 hover:underline">View</Link></td>
-            </tr>
-          ))}
-        </tbody></table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px]">
+            <thead className="bg-navy-50">
+              <tr className="text-left text-sm font-semibold text-navy-500 border-b border-navy-200">
+                <th className="p-3">Subject</th>
+                <th className="p-3">Customer</th>
+                <th className="p-3">Category</th>
+                <th className="p-3">Priority</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Created</th>
+                <th className="p-3">Last Reply</th>
+                <th className="p-3 w-16">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-navy-100">
+              {filtered.map(t => (
+                <tr key={t.id} className="hover:bg-navy-50">
+                  <td className="p-3"><Link to="#" className="font-medium text-navy-900 hover:text-fresh-700">{t.subject}</Link></td>
+                  <td className="p-3 text-sm text-navy-500">{t.customer}</td>
+                  <td className="p-3 text-sm text-navy-500">{t.category}</td>
+                  <td className="p-3"><Badge variant={t.priority === "HIGH" ? "destructive" : t.priority === "MEDIUM" ? "warning" : "default"}>{t.priority}</Badge></td>
+                  <td className="p-3"><Badge variant={t.status === "OPEN" ? "info" : t.status === "IN_PROGRESS" ? "warning" : t.status === "RESOLVED" ? "success" : "default"}>{t.status.replace("_", " ")}</Badge></td>
+                  <td className="p-3 text-sm text-navy-500">{formatDateTime(t.createdAt)}</td>
+                  <td className="p-3 text-sm text-navy-500">{formatDateTime(t.lastReply)}</td>
+                  <td className="p-3"><Link to="#" className="text-fresh-700 hover:underline">View</Link></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

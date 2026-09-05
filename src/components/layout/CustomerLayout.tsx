@@ -56,11 +56,11 @@ function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80 p-0">
+            <SheetContent side="left" className="w-[85vw] max-w-xs sm:w-80 p-0">
               <SheetHeader className="border-b border-navy-100 p-4 text-left">
                 <SheetTitle><Logo /></SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col p-4">
+              <nav className="flex flex-col p-4 overflow-y-auto max-h-[calc(100vh-5rem)]">
                 {navLinks.map((l) => (
                   <NavLink
                     key={l.to}
@@ -68,8 +68,8 @@ function Header() {
                     end={l.to === "/"}
                     className={({ isActive }) =>
                       cn(
-                        "rounded-md px-3 py-2.5 text-sm font-medium",
-                        isActive ? "bg-fresh-50 text-fresh-700" : "text-navy-700 hover:bg-navy-50"
+                        "flex items-center min-h-[44px] rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                        isActive ? "bg-fresh-50 text-fresh-700 font-semibold" : "text-navy-700 hover:bg-navy-50"
                       )
                     }
                   >
@@ -77,9 +77,13 @@ function Header() {
                   </NavLink>
                 ))}
                 <div className="mt-3 border-t border-navy-100 pt-3">
-                  <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-navy-400">Top categories</p>
+                  <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-navy-400">Top categories</p>
                   {categories.slice(0, 8).map((c) => (
-                    <Link key={c.id} to={`/categories/${c.slug}`} className="rounded-md px-3 py-2 text-sm text-navy-600 hover:bg-navy-50">
+                    <Link
+                      key={c.id}
+                      to={`/categories/${c.slug}`}
+                      className="flex items-center min-h-[44px] rounded-md px-3 py-2 text-sm text-navy-600 hover:bg-navy-50 transition-colors"
+                    >
                       {c.name}
                     </Link>
                   ))}
@@ -254,11 +258,11 @@ const footerLinks = [
 function Footer() {
   return (
     <footer className="border-t border-navy-200 bg-navy-50">
-      <div className="container py-12">
-        <div className="grid gap-10 md:grid-cols-4">
-          <div>
+      <div className="container py-10 sm:py-12">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          <div className="col-span-2 md:col-span-1">
             <Logo />
-            <p className="mt-3 max-w-xs text-sm text-navy-500">
+            <p className="mt-3 max-w-xs text-sm text-navy-500 leading-relaxed">
               Nigeria's own online supermarket. Groceries, household essentials and fresh produce — delivered to your door.
             </p>
           </div>
@@ -268,7 +272,7 @@ function Footer() {
               <ul className="mt-3 space-y-2">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="text-sm text-navy-500 hover:text-fresh-700">
+                    <Link to={link.to} className="text-sm text-navy-500 hover:text-fresh-700 transition-colors">
                       {link.label}
                     </Link>
                   </li>
@@ -286,14 +290,70 @@ function Footer() {
   )
 }
 
+function MobileBottomNav() {
+  const location = useLocation()
+  const { itemCount } = useCart()
+  const { user } = useAuth()
+
+  const tabs = [
+    { to: "/", label: "Home", icon: Home },
+    { to: "/shop", label: "Shop", icon: Store },
+    { to: "/categories", label: "Aisles", icon: Tags },
+    { to: "/deals", label: "Deals", icon: BadgePercent },
+    { to: "/cart", label: "Cart", icon: ShoppingCart, badge: itemCount },
+    { to: user ? "/orders" : "/sign-in", label: user ? "Orders" : "Account", icon: user ? Package : User },
+  ]
+
+  return (
+    <nav
+      className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-navy-200 md:hidden shadow-lg"
+      aria-label="Mobile Bottom Navigation"
+    >
+      <div className="grid grid-cols-6 h-16">
+        {tabs.map((tab) => {
+          const active =
+            location.pathname === tab.to ||
+            (tab.to !== "/" && location.pathname.startsWith(tab.to))
+          return (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-colors relative min-w-0 px-1",
+                active ? "text-fresh-700 font-semibold" : "text-navy-500 hover:text-navy-900"
+              )}
+            >
+              <div className="relative">
+                <tab.icon className={cn("h-5 w-5 shrink-0", active ? "text-fresh-600" : "text-navy-500")} />
+                {tab.badge !== undefined && tab.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-fresh-600 px-1 text-[10px] font-bold text-white shadow-2xs">
+                    {tab.badge}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] leading-tight truncate w-full text-center">
+                {tab.label}
+              </span>
+              {active && (
+                <span className="absolute top-0 inset-x-3 h-0.5 bg-fresh-600 rounded-full" />
+              )}
+            </Link>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}
+
 export function CustomerLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Outlet />
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   )
 }

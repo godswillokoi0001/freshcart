@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { ChevronRight, Heart, ShoppingCart, Truck, RotateCcw, ShieldCheck, Minus, Plus } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/Tabs"
@@ -14,15 +14,32 @@ import { reviewsForProduct } from "@data/reviews"
 import { formatNaira, discountPercent } from "@lib/format"
 import { useCart } from "@context/CartContext"
 import { useWishlist } from "@context/WishlistContext"
+import type { Review } from "@app-types/index"
 import { cn } from "@lib/utils"
 
 export function ProductPage() {
   const { product } = useParams()
-  const navigate = useNavigate()
   const data = productBySlug(product ?? "")
   const [qty, setQty] = React.useState(1)
   const { addItem } = useCart()
   const { has, toggle } = useWishlist()
+
+  const [reviewsList, setReviewsList] = React.useState<Review[]>(() =>
+    data ? reviewsForProduct(data.id) : []
+  )
+  const [showReviewForm, setShowReviewForm] = React.useState(false)
+  const [newReviewRating, setNewReviewRating] = React.useState(5)
+  const [newReviewTitle, setNewReviewTitle] = React.useState("")
+  const [newReviewComment, setNewReviewComment] = React.useState("")
+  const [newReviewName, setNewReviewName] = React.useState("")
+  const [selectedImage, setSelectedImage] = React.useState(() => data?.imageUrl || "")
+
+  React.useEffect(() => {
+    if (data) {
+      setSelectedImage(data.imageUrl)
+      setReviewsList(reviewsForProduct(data.id))
+    }
+  }, [data?.id, data?.imageUrl])
 
   if (!data) {
     return (
@@ -38,13 +55,35 @@ export function ProductPage() {
   }
 
   const discount = discountPercent(data.price, data.compareAtPrice)
-  const reviews = reviewsForProduct(data.id)
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newReviewTitle.trim() || !newReviewComment.trim()) return
+
+    const newRev: Review = {
+      id: `rev-${Date.now()}`,
+      productId: data.id,
+      customerName: newReviewName.trim() || "Verified FreshCart Shopper",
+      rating: newReviewRating,
+      title: newReviewTitle.trim(),
+      comment: newReviewComment.trim(),
+      date: new Date().toISOString().split("T")[0],
+      verifiedPurchase: true,
+      helpfulCount: 0,
+    }
+
+    setReviewsList([newRev, ...reviewsList])
+    setNewReviewTitle("")
+    setNewReviewComment("")
+    setShowReviewForm(false)
+  }
+
   const related = products
     .filter((p) => p.categoryId === data.categoryId && p.id !== data.id)
     .slice(0, 5)
   const outOfStock = data.stockStatus === "OUT_OF_STOCK"
 
-  const galleryImages = data.images.length
+  const galleryImages = data.images && data.images.length > 0
     ? data.images
     : [data.imageUrl]
 
@@ -62,24 +101,37 @@ export function ProductPage() {
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <ProductImage
-            productName={data.name}
-            categoryName={data.categoryName}
-            imageUrl={data.imageUrl}
-            className="aspect-square w-full border border-navy-200"
-            size="xl"
-          />
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+            <ProductImage
+              productName={data.name}
+              categoryName={data.categoryName}
+              imageUrl={selectedImage}
+              className="aspect-square w-full object-cover"
+              size="xl"
+            />
+          </div>
           {galleryImages.length > 1 && (
-            <div className="mt-3 flex gap-2">
-              {galleryImages.slice(0, 5).map((img, i) => (
-                <ProductImage
+            <div className="mt-3.5 flex flex-wrap gap-2.5">
+              {galleryImages.map((img, i) => (
+                <button
+                  type="button"
                   key={i}
-                  productName={data.name}
-                  categoryName={data.categoryName}
-                  imageUrl={img}
-                  className="h-16 w-16 cursor-pointer border border-navy-200 hover:border-fresh-500"
-                  size="sm"
-                />
+                  onClick={() => setSelectedImage(img)}
+                  className={cn(
+                    "relative h-16 w-16 overflow-hidden rounded-xl border-2 transition-all",
+                    selectedImage === img
+                      ? "border-emerald-600 ring-2 ring-emerald-600/30"
+                      : "border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-300"
+                  )}
+                >
+                  <ProductImage
+                    productName={data.name}
+                    categoryName={data.categoryName}
+                    imageUrl={img}
+                    className="h-full w-full object-cover"
+                    size="sm"
+                  />
+                </button>
               ))}
             </div>
           )}
@@ -181,7 +233,7 @@ export function ProductPage() {
         <TabsList>
           <TabsTrigger value="information">Product Information</TabsTrigger>
           <TabsTrigger value="delivery">Delivery & Returns</TabsTrigger>
-          <TabsTrigger value="reviews" id="reviews">Reviews ({reviews.length})</TabsTrigger>
+          <TabsTrigger value="reviews" id="reviews">Reviews ({reviewsList.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="information" className="mt-4">
           <div className="rounded-lg border border-navy-200 p-6">
@@ -211,26 +263,92 @@ export function ProductPage() {
           </div>
         </TabsContent>
         <TabsContent value="reviews" className="mt-4">
-          <div className="rounded-lg border border-navy-200 p-6">
-            {reviews.length === 0 ? (
-              <p className="py-6 text-center text-sm text-navy-500">
-                No reviews yet for this product. Be the first to share your experience.
-              </p>
-            ) : (
-              <>
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <p className="text-4xl font-bold text-navy-900">{data.rating.toFixed(1)}</p>
-                    <RatingStars rating={data.rating} className="mt-1" />
-                    <p className="mt-1 text-xs text-navy-500">{data.reviewCount} ratings</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <p className="text-4xl font-extrabold text-slate-900">{data.rating.toFixed(1)}</p>
+                  <RatingStars rating={data.rating} className="mt-1" />
+                  <p className="mt-1 text-xs text-slate-500">{reviewsList.length} verified reviews</p>
+                </div>
+              </div>
+              <Button
+                variant={showReviewForm ? "outline" : "default"}
+                onClick={() => setShowReviewForm(!showReviewForm)}
+              >
+                {showReviewForm ? "Cancel Review" : "Write a Customer Review"}
+              </Button>
+            </div>
+
+            {showReviewForm && (
+              <form onSubmit={handleReviewSubmit} className="my-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-5">
+                <h4 className="font-bold text-slate-900">Share your grocery experience</h4>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700">Your Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Chioma A."
+                      value={newReviewName}
+                      onChange={(e) => setNewReviewName(e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700">Rating (1 to 5 Stars)</label>
+                    <select
+                      value={newReviewRating}
+                      onChange={(e) => setNewReviewRating(Number(e.target.value))}
+                      className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    >
+                      <option value={5}>5 Stars — Excellent Quality</option>
+                      <option value={4}>4 Stars — Very Good</option>
+                      <option value={3}>3 Stars — Average / Acceptable</option>
+                      <option value={2}>2 Stars — Below Expectations</option>
+                      <option value={1}>1 Star — Disappointed</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700">Headline / Summary</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Great quality, neatly packaged and fresh"
+                      value={newReviewTitle}
+                      onChange={(e) => setNewReviewTitle(e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700">Your Review</label>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="Tell other shoppers about the freshness, packaging, or taste..."
+                      value={newReviewComment}
+                      onChange={(e) => setNewReviewComment(e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
                   </div>
                 </div>
-                <div className="mt-4 divide-y divide-navy-100">
-                  {reviews.map((r) => (
-                    <ReviewCard key={r.id} review={r} />
-                  ))}
+                <div className="mt-4 flex justify-end gap-2">
+                  <Button type="submit" size="sm">
+                    Submit Verified Review
+                  </Button>
                 </div>
-              </>
+              </form>
+            )}
+
+            {reviewsList.length === 0 ? (
+              <p className="py-8 text-center text-sm text-slate-500">
+                No reviews yet for this product. Be the first to share your experience!
+              </p>
+            ) : (
+              <div className="mt-6 divide-y divide-slate-100">
+                {reviewsList.map((r) => (
+                  <ReviewCard key={r.id} review={r} />
+                ))}
+              </div>
             )}
           </div>
         </TabsContent>
