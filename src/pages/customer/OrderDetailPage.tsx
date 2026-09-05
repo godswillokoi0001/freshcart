@@ -15,10 +15,12 @@ import {
   XCircle,
   HelpCircle,
   FileText,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@components/ui/Button"
 import { EmptyState } from "@components/ui/EmptyState"
 import { OrderTimeline } from "@components/customer/OrderTimeline"
+import { RealtimeOrderTracker } from "@components/customer/RealtimeOrderTracker"
 import { CheckoutSummary } from "@components/customer/CheckoutSummary"
 import { OrderStatusBadge, PaymentStatusBadge } from "@components/shared/StatusBadges"
 import { ProductImage } from "@components/shared/ProductImage"
@@ -28,15 +30,57 @@ import { useToast } from "@context/ToastContext"
 import { products } from "@data/products"
 import { formatNaira, formatDate } from "@lib/format"
 import { cn } from "@lib/utils"
+import type { Order, OrderStatus } from "@app-types/index"
 
 export function OrderDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addItem } = useCart()
-  const { getOrder, cancelOrder } = useOrders()
+  const { getOrder, fetchOrderById, cancelOrder, updateOrderStatus } = useOrders()
   const { success, error } = useToast()
 
-  const order = getOrder(id ?? "")
+  const cachedOrder = getOrder(id ?? "")
+  const [order, setOrder] = React.useState<Order | null>(cachedOrder || null)
+  const [isLoading, setIsLoading] = React.useState<boolean>(!cachedOrder)
+
+  React.useEffect(() => {
+    if (cachedOrder) {
+      setOrder(cachedOrder)
+      setIsLoading(false)
+      return
+    }
+
+    let isMounted = true
+    if (id) {
+      setIsLoading(true)
+      fetchOrderById(id)
+        .then((found) => {
+          if (isMounted) {
+            if (found) setOrder(found)
+          }
+        })
+        .finally(() => {
+          if (isMounted) setIsLoading(false)
+        })
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [id, cachedOrder, fetchOrderById])
+
+  const handleLiveStatusChange = React.useCallback((newStatus: OrderStatus) => {
+    setOrder((prev) => (prev ? { ...prev, status: newStatus } : null))
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="container py-24 text-center">
+        <Loader2 className="mx-auto h-8 w-8 animate-spin text-emerald-600" />
+        <p className="mt-3 text-sm font-medium text-slate-500">Connecting to order tracking system...</p>
+      </div>
+    )
+  }
 
   if (!order) {
     return (
@@ -129,12 +173,24 @@ export function OrderDetailPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         {/* Main tracking & items column */}
         <div className="space-y-6">
-          {/* Timeline */}
+          {/* Real-time Order Tracking Status Component */}
+          <RealtimeOrderTracker
+            orderId={order.id}
+            orderNumber={order.orderNumber}
+            initialStatus={order.status}
+            initialRiderName={order.riderName}
+            deliverySlot={order.deliverySlot}
+            deliveryAddress={order.address?.line1 ? `${order.address.line1}, ${order.address.city}` : undefined}
+            createdAt={order.createdAt}
+            onStatusChange={handleLiveStatusChange}
+          />
+
+          {/* Detailed Timeline Events */}
           <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Delivery Status &amp; Progress</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Real-time status updates from our fulfillment hub</p>
+                <h2 className="text-lg font-bold text-slate-900">Milestone Event Log</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Chronological timestamps from fulfillment warehouse to your doorstep</p>
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
                 {order.status.replace(/_/g, " ")}

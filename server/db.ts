@@ -3,10 +3,11 @@ import type { PoolConfig, QueryResult, QueryResultRow } from "pg"
 
 function getDbConfig(): PoolConfig {
   const raw = process.env.DATABASE_URL || ""
-  const prefix = "postgresql://"
-  if (!raw.startsWith(prefix)) {
+  const isPostgresUrl = raw.startsWith("postgresql://") || raw.startsWith("postgres://")
+  if (!isPostgresUrl) {
     return { connectionString: raw }
   }
+  const prefix = raw.startsWith("postgresql://") ? "postgresql://" : "postgres://"
   const lastAt = raw.lastIndexOf("@")
   if (lastAt === -1) {
     return { connectionString: raw }

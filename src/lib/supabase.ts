@@ -1,17 +1,29 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co"
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "placeholder-anon-key"
+function cleanSupabaseUrl(url?: string): string {
+  if (!url) return "https://placeholder.supabase.co"
+  // Remove trailing /rest/v1 or slashes which cause Supabase Auth/Realtime/Storage calls to 404
+  return url.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "")
+}
 
-export const isSupabaseConfigured = Boolean(
-  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
-)
+const rawUrl = import.meta.env.VITE_SUPABASE_URL
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+const supabaseUrl = cleanSupabaseUrl(rawUrl)
+const supabaseAnonKey = rawKey || "placeholder-anon-key"
+
+export const isSupabaseConfigured = Boolean(rawUrl && rawKey && !rawUrl.includes("placeholder"))
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
   },
 })
 
