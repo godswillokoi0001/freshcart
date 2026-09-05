@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express"
+import { v4 as uuidv4 } from "uuid"
+import bcrypt from "bcryptjs"
 import { supabase } from "./supabase"
 import { query } from "./db"
+
+const JWT_SECRET = process.env.AUTH_SECRET || "freshcart_jwt_super_secret_dev_key_change_in_prod"
 
 export interface AuthUser {
   id: string
@@ -16,6 +20,29 @@ declare global {
       user?: AuthUser
     }
   }
+}
+
+export async function hashPassword(plainText: string): Promise<string> {
+  const salt = await bcrypt.genSalt(10)
+  return bcrypt.hash(plainText, salt)
+}
+
+export async function comparePassword(plainText: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(plainText, hash)
+}
+
+export function generateToken(user: AuthUser): string {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      staffRole: user.staffRole,
+    },
+    JWT_SECRET,
+    { expiresIn: "7d" }
+  )
 }
 
 export async function resolveAuthUser(token: string): Promise<AuthUser | null> {
