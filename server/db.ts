@@ -7,6 +7,7 @@ function getDbConfig(): PoolConfig {
   if (!isPostgresUrl) {
     return { connectionString: raw }
   }
+  // Supabase PostgreSQL - parse URL components manually
   const prefix = raw.startsWith("postgresql://") ? "postgresql://" : "postgres://"
   const lastAt = raw.lastIndexOf("@")
   if (lastAt === -1) {

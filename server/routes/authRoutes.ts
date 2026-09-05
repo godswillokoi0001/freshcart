@@ -9,6 +9,8 @@ export const authRouter = Router()
 // This endpoint ensures the database profile exists for the given email.
 authRouter.post("/register", async (req: Request, res: Response) => {
   try {
+    console.log('=== REGISTER CALLED ===');
+    console.log('Body:', req.body);
     const { name, email, phone } = req.body
 
     if (!email) {
@@ -17,26 +19,30 @@ authRouter.post("/register", async (req: Request, res: Response) => {
     }
 
     const cleanEmail = email.toLowerCase().trim()
+    console.log('Clean email:', cleanEmail);
 
     // Check if user profile already exists
     const existing = await query("SELECT id FROM profiles WHERE email = $1", [cleanEmail])
+    console.log('Existing rows:', existing.rows.length);
     if (existing.rows.length > 0) {
       res.status(400).json({ error: "An account with this email already exists" })
       return
     }
 
+    console.log('About to insert profile...');
     // Note: The actual Supabase Auth user should be created via the frontend
     // Supabase JS client: supabase.auth.signUp({ email, password, ... })
     // This server endpoint creates the corresponding database profile.
     // The Supabase trigger on_auth_user_created_after will sync auth.users ⇄ profiles.
-
     const insertRes = await query(
       `INSERT INTO profiles (id, email, full_name, phone, role, status)
        VALUES (gen_random_uuid(), $1, $2, $3, 'customer', 'ACTIVE')
        ON CONFLICT (email) DO NOTHING
        RETURNING id, email, full_name, phone, role, status;`,
       [cleanEmail, name || null, phone || null]
-    )
+    );
+    console.log('Insert result rows:', insertRes.rows.length);
+    console.log('Insert result:', insertRes.rows);
 
     const newUser = insertRes.rows[0]
 
@@ -177,4 +183,3 @@ authRouter.post("/login-as-role", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to authenticate as role" })
   }
 })
-
