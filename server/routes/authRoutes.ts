@@ -1,69 +1,59 @@
 import { Router, Request, Response } from "express"
 import { query } from "../db"
-import { hashPassword, comparePassword, generateToken, authenticateToken } from "../auth"
-import { sendWelcomeEmail } from "../email"
+import { authenticateToken, optionalToken, resolveAuthUser } from "../auth"
 
 export const authRouter = Router()
 
-// Register customer
+// Register: creates a user profile in the database.
+// Note: Actual account creation should be done via Supabase JS client (signUp).
+// This endpoint ensures the database profile exists for the given email.
 authRouter.post("/register", async (req: Request, res: Response) => {
   try {
-    const { name, email, password, phone } = req.body
+    const { name, email, phone } = req.body
 
-    if (!name || !email || !password) {
-      res.status(400).json({ error: "Name, email, and password are required" })
-      return
-    }
-
-    if (password.length < 6) {
-      res.status(400).json({ error: "Password must be at least 6 characters long" })
+    if (!email) {
+      res.status(400).json({ error: "Email is required" })
       return
     }
 
     const cleanEmail = email.toLowerCase().trim()
 
-    // Check if user already exists
-    const existing = await query("SELECT id FROM users WHERE email = $1", [cleanEmail])
+    // Check if user profile already exists
+    const existing = await query("SELECT id FROM profiles WHERE email = $1", [cleanEmail])
     if (existing.rows.length > 0) {
       res.status(400).json({ error: "An account with this email already exists" })
       return
     }
 
-    const passwordHash = await hashPassword(password)
+    // Note: The actual Supabase Auth user should be created via the frontend
+    // Supabase JS client: supabase.auth.signUp({ email, password, ... })
+    // This server endpoint creates the corresponding database profile.
+    // The Supabase trigger on_auth_user_created_after will sync auth.users ⇄ profiles.
 
     const insertRes = await query(
-      `INSERT INTO users (full_name, email, password_hash, phone, role, status)
-       VALUES ($1, $2, $3, $4, 'customer', 'ACTIVE')
-       RETURNING id, full_name, email, phone, role, status, created_at;`,
-      [name.trim(), cleanEmail, passwordHash, phone ? phone.trim() : null]
+      `INSERT INTO profiles (id, email, full_name, phone, role, status)
+       VALUES (gen_random_uuid(), $1, $2, $3, 'customer', 'ACTIVE')
+       ON CONFLICT (email) DO NOTHING
+       RETURNING id, email, full_name, phone, role, status;`,
+      [cleanEmail, name || null, phone || null]
     )
 
     const newUser = insertRes.rows[0]
-    const token = generateToken({
-      id: newUser.id,
-      email: newUser.email,
-      name: newUser.full_name,
-      role: newUser.role,
-    })
 
-    // Send welcome email asynchronously
-    sendWelcomeEmail(newUser.email, newUser.full_name).catch((e) =>
-      console.warn("Welcome email error:", e.message)
-    )
+    if (!newUser) {
+      res.status(400).json({ error: "Failed to create user profile. Please sign up via the Supabase JS client." })
+      return
+    }
 
     res.status(201).json({
       user: {
         id: newUser.id,
-        name: newUser.full_name,
+        name: newUser.full_name || newUser.email?.split("@")[0] || "Customer",
         email: newUser.email,
         phone: newUser.phone || "",
         role: newUser.role,
         status: newUser.status,
-        ordersCount: 0,
-        totalSpent: 0,
-        joinedAt: newUser.created_at,
       },
-      token,
     })
   } catch (error: any) {
     console.error("Registration error:", error)
@@ -71,72 +61,33 @@ authRouter.post("/register", async (req: Request, res: Response) => {
   }
 })
 
-// Login
-authRouter.post("/login", async (req: Request, res: Response) => {
+// Login: verifies a Supabase Auth token and returns the user profile.
+// The supabaseToken should be passed in the request body or as Authorization: Bearer header.
+authRouter.post("/login", optionalToken, async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body
+    // If a supabaseToken is provided in the body, use it; otherwise req.user from optionalToken
+    let token = req.body?.supabaseToken || req.headers.authorization?.startsWith("Bearer ") ? req.headers.authorization.substring(7) : null
 
-    if (!email || !password) {
-      res.status(400).json({ error: "Email and password are required" })
+    if (!token) {
+      res.status(400).json({ error: "Supabase token is required" })
       return
     }
 
-    const cleanEmail = email.toLowerCase().trim()
-    const userRes = await query(
-      `SELECT u.id, u.email, u.full_name, u.phone, u.password_hash, u.role, u.status, u.created_at,
-              sp.staff_role,
-              (SELECT COUNT(*) FROM orders WHERE customer_id = u.id) as orders_count,
-              COALESCE((SELECT SUM(total) FROM orders WHERE customer_id = u.id AND payment_status = 'PAID'), 0) as total_spent
-       FROM users u
-       LEFT JOIN staff_profiles sp ON sp.user_id = u.id
-       WHERE u.email = $1;`,
-      [cleanEmail]
-    )
-
-    if (userRes.rows.length === 0) {
-      res.status(401).json({ error: "Invalid email or password" })
+    const user = await resolveAuthUser(token)
+    if (!user) {
+      res.status(401).json({ error: "Invalid or expired authentication session" })
       return
     }
-
-    const user = userRes.rows[0]
-
-    if (user.status === "SUSPENDED") {
-      res.status(403).json({ error: "This account has been suspended. Please contact FreshCart support." })
-      return
-    }
-
-    const isValid = await comparePassword(password, user.password_hash)
-    if (!isValid) {
-      res.status(401).json({ error: "Invalid email or password" })
-      return
-    }
-
-    // Update last_active timestamp for staff/rider
-    if (user.role === "staff" || user.role === "admin") {
-      await query("UPDATE staff_profiles SET last_active = NOW() WHERE user_id = $1", [user.id])
-    }
-
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      name: user.full_name,
-      role: user.role,
-      staffRole: user.staff_role,
-    })
 
     res.json({
       user: {
         id: user.id,
-        name: user.full_name,
+        name: user.name,
         email: user.email,
-        phone: user.phone || "",
+        phone: user.email ? "" : "", // phone not always available from Supabase metadata
         role: user.role,
         status: user.status,
-        ordersCount: parseInt(user.orders_count || "0", 10),
-        totalSpent: parseFloat(user.total_spent || "0"),
-        joinedAt: user.created_at,
       },
-      token,
     })
   } catch (error: any) {
     console.error("Login error:", error)
@@ -147,34 +98,14 @@ authRouter.post("/login", async (req: Request, res: Response) => {
 // Current user verification
 authRouter.get("/me", authenticateToken, async (req: Request, res: Response) => {
   try {
-    const userRes = await query(
-      `SELECT u.id, u.email, u.full_name, u.phone, u.role, u.status, u.created_at,
-              sp.staff_role,
-              (SELECT COUNT(*) FROM orders WHERE customer_id = u.id) as orders_count,
-              COALESCE((SELECT SUM(total) FROM orders WHERE customer_id = u.id AND payment_status = 'PAID'), 0) as total_spent
-       FROM users u
-       LEFT JOIN staff_profiles sp ON sp.user_id = u.id
-       WHERE u.id = $1;`,
-      [req.user!.id]
-    )
-
-    if (userRes.rows.length === 0) {
-      res.status(404).json({ error: "User not found" })
-      return
-    }
-
-    const user = userRes.rows[0]
     res.json({
       user: {
-        id: user.id,
-        name: user.full_name,
-        email: user.email,
-        phone: user.phone || "",
-        role: user.role,
-        status: user.status,
-        ordersCount: parseInt(user.orders_count || "0", 10),
-        totalSpent: parseFloat(user.total_spent || "0"),
-        joinedAt: user.created_at,
+        id: req.user!.id,
+        name: req.user!.name,
+        email: req.user!.email,
+        phone: req.user!.phone || "",
+        role: req.user!.role,
+        status: req.user!.status,
       },
     })
   } catch (error: any) {
@@ -183,7 +114,7 @@ authRouter.get("/me", authenticateToken, async (req: Request, res: Response) => 
   }
 })
 
-// Password reset
+// Password reset - always responds success to prevent account enumeration
 authRouter.post("/reset-password", async (req: Request, res: Response) => {
   try {
     const { email } = req.body
@@ -191,15 +122,13 @@ authRouter.post("/reset-password", async (req: Request, res: Response) => {
       res.status(400).json({ error: "Email is required" })
       return
     }
-
-    // Always respond with success to prevent account enumeration
     res.json({ message: "If an account exists with this email, password reset instructions have been sent." })
   } catch (error: any) {
     res.status(500).json({ error: "Password reset request failed" })
   }
 })
 
-// Login as Role (One-click role switching with real database accounts)
+// Login as Role (One-click role switching for development/testing)
 authRouter.post("/login-as-role", async (req: Request, res: Response) => {
   try {
     const { role } = req.body
@@ -230,14 +159,6 @@ authRouter.post("/login-as-role", async (req: Request, res: Response) => {
     }
 
     const user = userRes.rows[0]
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      name: user.full_name,
-      role: user.role,
-      staffRole: user.staff_role,
-    })
-
     res.json({
       user: {
         id: user.id,
@@ -250,7 +171,6 @@ authRouter.post("/login-as-role", async (req: Request, res: Response) => {
         totalSpent: parseFloat(user.total_spent || "0"),
         joinedAt: user.created_at,
       },
-      token,
     })
   } catch (error: any) {
     console.error("Login as role error:", error)

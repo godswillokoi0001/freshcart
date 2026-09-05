@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from "express"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcryptjs"
 import { supabase } from "./supabase"
 import { query } from "./db"
-
-const JWT_SECRET = process.env.AUTH_SECRET || "freshcart_production_jwt_secret_key_2026"
 
 export interface AuthUser {
   id: string
@@ -22,41 +18,8 @@ declare global {
   }
 }
 
-export async function hashPassword(plainText: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10)
-  return bcrypt.hash(plainText, salt)
-}
-
-export async function comparePassword(plainText: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(plainText, hash)
-}
-
-export function generateToken(user: AuthUser): string {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      staffRole: user.staffRole,
-    },
-    JWT_SECRET,
-    { expiresIn: "7d" }
-  )
-}
-
 export async function resolveAuthUser(token: string): Promise<AuthUser | null> {
-  // 1. Try local server JWT
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser
-    if (decoded && decoded.id) {
-      return decoded
-    }
-  } catch {
-    // Not a server JWT, proceed to Supabase token verification
-  }
-
-  // 2. Try Supabase Auth token
+  // 1. Try Supabase Auth token only
   try {
     const { data, error } = await supabase.auth.getUser(token)
     if (!error && data?.user) {

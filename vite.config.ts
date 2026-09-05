@@ -5,8 +5,8 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   define: {
-    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.STORAGE_URL || ''),
-    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.STORAGE_KEY || ''),
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || ''),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
   },
   server: {
     host: '0.0.0.0',
