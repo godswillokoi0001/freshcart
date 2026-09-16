@@ -1,18 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  --color-fresh-50: #f0fdf4;
-  --color-fresh-100: #dcfce7;
-  --color-fresh-200: #bbf7d0;
-  --color-fresh-300: #86efac;
-  --color-fresh-400: #4ade80;
-  --color-fresh-500: #22c55e;
-  --color-fresh-600: #16a34a;
-  --color-fresh-700: #15803d;
-  --color-fresh-800: #166534;
-  --color-fresh-900: #14532d;
+  /* ─── FreshCart brand tokens ──────────────────────────────────── */
+  /* Rooted in Lagos market vernacular — not a generic SaaS default  */
 
-  --color-navy-50: #f8fafc;
+  /* Core palette */
+  --color-fc-earth:    #1A1208;  /* Roasted cacao / Bole charcoal  */
+  --color-fc-market:   #E8521A;  /* Suya pepper clay / Danfo orange */
+  --color-fc-leaf:     #2D6A2F;  /* Pawpaw-leaf forest green        */
+  --color-fc-cream:    #F7F2E8;  /* Ground egusi / unbleached sack  */
+  --color-fc-chalk:    #FDFAF5;  /* White wall in noon Lagos sun    */
+  --color-fc-smoke:    #8A7E72;  /* Dried pepper — secondary text   */
+  --color-fc-amber:    #F5CB5C;  /* Coupon yellow / price highlight */
+
+  /* Tints & shades derived from core */
+  --color-fc-earth-800: #2E2015;
+  --color-fc-earth-700: #3D2A1A;
+  --color-fc-market-50: #FEF0EB;
+  --color-fc-market-100: #FDD5C5;
+  --color-fc-market-600: #C94215;
+  --color-fc-leaf-50:  #EBF4EB;
+  --color-fc-leaf-100: #C8E0C9;
+  --color-fc-leaf-700: #235524;
+  --color-fc-cream-200: #EDE5D3;
+  --color-fc-smoke-light: #C4B8AE;
+
+  /* Functional / semantic */
+  --color-danger-50:  #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-warning-50: #fff7ed;
+  --color-warning-100: #ffedd5;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-success-50: #EBF4EB;
+  --color-success-100: #C8E0C9;
+  --color-success-500: #2D6A2F;
+  --color-success-600: #235524;
+
+  /* Kept for admin / staff / rider panels that still use these */
+  --color-navy-50:  #f8fafc;
   --color-navy-100: #f1f5f9;
   --color-navy-200: #e2e8f0;
   --color-navy-300: #cbd5e1;
@@ -23,107 +51,182 @@
   --color-navy-800: #1e293b;
   --color-navy-900: #0f172a;
   --color-navy-950: #020617;
+  --color-fresh-50:  #EBF4EB;
+  --color-fresh-100: #C8E0C9;
+  --color-fresh-200: #9DC9A0;
+  --color-fresh-300: #6DAF71;
+  --color-fresh-400: #469649;
+  --color-fresh-500: #2D6A2F;
+  --color-fresh-600: #2D6A2F;
+  --color-fresh-700: #235524;
+  --color-fresh-800: #1A3F1B;
+  --color-fresh-900: #102810;
 
-  --color-warning-50: #fff7ed;
-  --color-warning-100: #ffedd5;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
-  --color-danger-50: #fef2f2;
-  --color-danger-100: #fee2e2;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
+  /* Typography */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans:    "DM Sans", system-ui, sans-serif;
+  --font-heading: "DM Sans", system-ui, sans-serif;
+  --font-mono:    ui-monospace, monospace;
 
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
+  /* Shadows — minimal, functional only */
+  --shadow-sm:  0 1px 2px 0 rgb(26 18 8 / 0.06);
+  --shadow:     0 2px 4px 0 rgb(26 18 8 / 0.08);
+  --shadow-md:  0 4px 8px 0 rgb(26 18 8 / 0.10);
+  --shadow-lg:  0 8px 24px 0 rgb(26 18 8 / 0.12);
+  --shadow-xl:  0 20px 40px 0 rgb(26 18 8 / 0.14);
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* Border radius — restrained, not uniform */
+  --radius-sm:  0.125rem;   /* 2px  — sharp, market-stall */
+  --radius:     0.25rem;    /* 4px  — slight softening     */
+  --radius-md:  0.5rem;     /* 8px  — inputs, pills        */
+  --radius-lg:  1rem;       /* 16px — only large surfaces  */
+  --radius-xl:  1.5rem;     /* 24px — hero card only       */
 
-  --radius-sm: 0.25rem;
-  --radius: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-
-  --breakpoint-xs: 480px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
+  /* Breakpoints */
+  --breakpoint-xs:  480px;
+  --breakpoint-sm:  640px;
+  --breakpoint-md:  768px;
+  --breakpoint-lg:  1024px;
+  --breakpoint-xl:  1280px;
   --breakpoint-2xl: 1536px;
+}
+
+/* ─── Hero word-stagger animation — the ONE deliberate motion ────── */
+@keyframes fc-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fc-hero-word {
+  display: inline-block;
+  opacity: 0;
+  animation: fc-word-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Coupon ticket tilt */
+.fc-ticket {
+  transform: rotate(1.5deg);
+  display: inline-block;
 }
 
 @layer base {
   * {
-    @apply border-navy-200;
+    border-color: var(--color-fc-cream-200);
   }
   body {
-    @apply bg-white text-navy-900 antialiased;
+    background-color: var(--color-fc-chalk);
+    color: var(--color-fc-earth);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    @apply text-navy-900 font-semibold;
+    font-family: var(--font-sans);
+    color: var(--color-fc-earth);
+    font-weight: 700;
   }
 }
 
 @layer components {
+  /* ─── Buttons ─────────────────────────────────────────────────── */
+  /* Base shared mixin — inlined into every variant (Tailwind v4: cannot @apply component classes) */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50;
+    border-radius: var(--radius);
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-fresh-600 text-white hover:bg-fresh-700;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           bg-fc-market text-white hover:bg-fc-market-600 active:bg-fc-market-600;
+    border-radius: var(--radius);
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-navy-100 text-navy-900 hover:bg-navy-200;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           bg-fc-cream text-fc-earth border border-fc-cream-200 hover:bg-fc-cream-200;
+    border-radius: var(--radius);
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-navy-300 bg-transparent hover:bg-navy-50;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           border border-fc-cream-200 bg-transparent text-fc-earth hover:bg-fc-cream;
+    border-radius: var(--radius);
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-transparent hover:bg-navy-100;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           bg-transparent text-fc-earth hover:bg-fc-cream;
+    border-radius: var(--radius);
   }
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-danger-500 text-white hover:bg-danger-600;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           bg-danger-500 text-white hover:bg-danger-600;
+    border-radius: var(--radius);
   }
   .btn-success {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success-500 text-white hover:bg-success-600;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           bg-fc-leaf text-white hover:bg-fc-leaf-700;
+    border-radius: var(--radius);
   }
   .btn-sm {
     @apply px-3 py-1.5 text-xs;
   }
   .btn-lg {
-    @apply px-6 py-3 text-base;
+    @apply px-6 py-3.5 text-base;
   }
   .btn-icon {
-    @apply inline-flex items-center justify-center gap-2 rounded-md p-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fresh-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center p-2.5 transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-market
+           disabled:pointer-events-none disabled:opacity-50;
+    border-radius: var(--radius);
   }
 
+  /* ─── Inputs ──────────────────────────────────────────────────── */
   .input {
-    @apply flex h-10 w-full rounded-md border border-navy-300 bg-white px-3 py-2 text-sm placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-fresh-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full border border-fc-cream-200 bg-fc-chalk px-3 py-2 text-sm
+           text-fc-earth placeholder:text-fc-smoke
+           focus:outline-none focus:ring-2 focus:ring-fc-market focus:border-transparent
+           disabled:cursor-not-allowed disabled:opacity-50;
+    border-radius: var(--radius);
   }
   .label {
-    @apply text-sm font-medium text-navy-700;
+    @apply text-sm font-semibold text-fc-earth;
   }
 
+  /* ─── Cards ───────────────────────────────────────────────────── */
+  /* Sharp-corner product cards — market-stall directness            */
   .card {
-    @apply rounded-lg border border-navy-200 bg-white shadow-sm;
+    @apply border border-fc-cream-200 bg-white;
+    border-radius: 0;
+  }
+  .card-rounded {
+    @apply border border-fc-cream-200 bg-white;
+    border-radius: var(--radius-md);
   }
   .card-header {
     @apply flex flex-col space-y-1.5 p-6;
   }
   .card-title {
-    @apply text-xl font-semibold leading-none tracking-tight;
+    @apply text-xl font-bold leading-snug;
   }
   .card-description {
-    @apply text-sm text-navy-500;
+    @apply text-sm text-fc-smoke;
   }
   .card-content {
     @apply p-6 pt-0;
@@ -132,54 +235,58 @@
     @apply flex items-center p-6 pt-0;
   }
 
+  /* ─── Badges ──────────────────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold;
+    border-radius: var(--radius-sm);
   }
   .badge-success {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-success-50 text-success-600;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-fc-leaf-50 text-fc-leaf;
+    border-radius: var(--radius-sm);
   }
   .badge-warning {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-warning-50 text-warning-600;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-warning-50 text-warning-600;
+    border-radius: var(--radius-sm);
   }
   .badge-danger {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-danger-50 text-danger-600;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-danger-50 text-danger-600;
+    border-radius: var(--radius-sm);
   }
   .badge-info {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-fresh-50 text-fresh-600;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-fc-leaf-50 text-fc-leaf;
+    border-radius: var(--radius-sm);
   }
   .badge-default {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-navy-100 text-navy-700;
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-fc-cream text-fc-earth;
+    border-radius: var(--radius-sm);
   }
 
+  /* ─── Layout primitives ───────────────────────────────────────── */
   .container {
     @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
-
   .section {
     @apply py-12 sm:py-16 lg:py-20;
   }
 
+  /* ─── Type scale ──────────────────────────────────────────────── */
   .heading-1 {
-    @apply text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-navy-900;
+    @apply text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-fc-earth;
   }
   .heading-2 {
-    @apply text-3xl sm:text-4xl font-bold tracking-tight text-navy-900;
+    @apply text-3xl sm:text-4xl font-bold tracking-tight text-fc-earth;
   }
   .heading-3 {
-    @apply text-2xl sm:text-3xl font-semibold tracking-tight text-navy-900;
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-fc-earth;
   }
   .heading-4 {
-    @apply text-xl sm:text-2xl font-semibold text-navy-900;
+    @apply text-xl sm:text-2xl font-bold text-fc-earth;
   }
-
   .text-body {
-    @apply text-base text-navy-600 leading-relaxed;
-  }
-  .text-sm {
-    @apply text-sm text-navy-600;
+    @apply text-base text-fc-earth leading-relaxed;
   }
   .text-muted {
-    @apply text-navy-400;
+    @apply text-fc-smoke;
   }
 }
 
@@ -190,5 +297,10 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Display serif utility — Fraunces only where intentional */
+  .font-display {
+    font-family: var(--font-display);
   }
 }

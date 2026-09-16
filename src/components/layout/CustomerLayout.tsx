@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom"
 import {
-  Search, ShoppingCart, Heart, User, Menu, X, ChevronDown, LogOut, Package,
+  Search, ShoppingCart, Heart, User, Menu, LogOut, Package,
   Bell, LayoutDashboard, Home, Store, Tags, BadgePercent, ClipboardList, UserRound,
 } from "lucide-react"
 import { Logo } from "@components/shared/Logo"
@@ -47,17 +47,18 @@ function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-navy-200 bg-white">
+    <header className="sticky top-0 z-40 border-b border-fc-cream-200 bg-fc-chalk">
       <div className="container">
         <div className="flex h-16 items-center gap-4">
+          {/* Mobile menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
-                <Menu className="h-5 w-5" />
+                <Menu className="h-5 w-5 text-fc-earth" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[85vw] max-w-xs sm:w-80 p-0">
-              <SheetHeader className="border-b border-navy-100 p-4 text-left">
+            <SheetContent side="left" className="w-[85vw] max-w-xs sm:w-80 p-0 bg-fc-chalk border-fc-cream-200">
+              <SheetHeader className="border-b border-fc-cream-200 p-4 text-left">
                 <SheetTitle><Logo /></SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col p-4 overflow-y-auto max-h-[calc(100vh-5rem)]">
@@ -68,21 +69,25 @@ function Header() {
                     end={l.to === "/"}
                     className={({ isActive }) =>
                       cn(
-                        "flex items-center min-h-[44px] rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-                        isActive ? "bg-fresh-50 text-fresh-700 font-semibold" : "text-navy-700 hover:bg-navy-50"
+                        "flex items-center min-h-[44px] px-3 py-2.5 text-sm font-semibold transition-colors",
+                        isActive
+                          ? "text-fc-market border-l-2 border-fc-market pl-2.5"
+                          : "text-fc-earth hover:text-fc-market"
                       )
                     }
                   >
                     {l.label}
                   </NavLink>
                 ))}
-                <div className="mt-3 border-t border-navy-100 pt-3">
-                  <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-navy-400">Top categories</p>
+                <div className="mt-3 border-t border-fc-cream-200 pt-3">
+                  <p className="px-3 pb-2 text-xs font-semibold text-fc-smoke">
+                    Top categories
+                  </p>
                   {categories.slice(0, 8).map((c) => (
                     <Link
                       key={c.id}
                       to={`/categories/${c.slug}`}
-                      className="flex items-center min-h-[44px] rounded-md px-3 py-2 text-sm text-navy-600 hover:bg-navy-50 transition-colors"
+                      className="flex items-center min-h-[44px] px-3 py-2 text-sm text-fc-earth hover:text-fc-market transition-colors"
                     >
                       {c.name}
                     </Link>
@@ -94,18 +99,21 @@ function Header() {
 
           <Logo />
 
+          {/* Search — inline, not a dropdown */}
           <form onSubmit={submitSearch} className="relative ml-2 hidden flex-1 md:block" role="search">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fc-smoke" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for rice, milk, spaghetti…"
-              className="h-10 w-full rounded-md border border-navy-200 bg-navy-50 pl-9 pr-4 text-sm placeholder:text-navy-400 focus:border-fresh-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-fresh-500"
+              placeholder="Search rice, milk, spaghetti…"
+              className="h-10 w-full border border-fc-cream-200 bg-white pl-9 pr-4 text-sm text-fc-earth placeholder:text-fc-smoke focus:border-fc-leaf focus:outline-none focus:ring-1 focus:ring-fc-leaf"
+              style={{ borderRadius: 0 }}
               aria-label="Search products"
             />
           </form>
 
+          {/* Desktop nav — only 3 key links, decluttered */}
           <nav className="ml-2 hidden items-center gap-1 lg:flex">
             {navLinks.slice(1, 4).map((l) => (
               <NavLink
@@ -113,8 +121,8 @@ function Header() {
                 to={l.to}
                 className={({ isActive }) =>
                   cn(
-                    "rounded-md px-3 py-2 text-sm font-medium",
-                    isActive ? "text-fresh-700" : "text-navy-600 hover:text-navy-900"
+                    "px-3 py-2 text-sm font-semibold transition-colors",
+                    isActive ? "text-fc-market" : "text-fc-earth hover:text-fc-market"
                   )
                 }
               >
@@ -123,22 +131,26 @@ function Header() {
             ))}
           </nav>
 
+          {/* Icon cluster */}
           <div className="ml-auto flex items-center gap-1">
-            <Button variant="ghost" size="icon" asChild className="relative" aria-label="Wishlist">
+            <Button variant="ghost" size="icon" asChild className="relative text-fc-earth hover:text-fc-market hover:bg-fc-cream" aria-label="Wishlist">
               <Link to="/wishlist">
                 <Heart className="h-5 w-5" />
                 {wishlistCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-500 px-1 text-[10px] font-bold text-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center bg-fc-market px-1 text-[10px] font-bold text-white"
+                        style={{ borderRadius: 0 }}>
                     {wishlistCount}
                   </span>
                 )}
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" asChild className="relative" aria-label="Cart">
+
+            <Button variant="ghost" size="icon" asChild className="relative text-fc-earth hover:text-fc-market hover:bg-fc-cream" aria-label="Cart">
               <Link to="/cart">
                 <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-fresh-600 px-1 text-[10px] font-bold text-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center bg-fc-market px-1 text-[10px] font-bold text-white"
+                        style={{ borderRadius: 0 }}>
                     {itemCount}
                   </span>
                 )}
@@ -147,7 +159,7 @@ function Header() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative" aria-label="Account">
+                <Button variant="ghost" size="icon" className="relative text-fc-earth hover:text-fc-market hover:bg-fc-cream" aria-label="Account">
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -155,8 +167,8 @@ function Header() {
                 {user && user.role === "customer" ? (
                   <>
                     <DropdownMenuLabel>
-                      <p className="text-sm font-semibold">{user.name}</p>
-                      <p className="text-xs font-normal text-navy-500">{user.email}</p>
+                      <p className="text-sm font-semibold text-fc-earth">{user.name}</p>
+                      <p className="text-xs font-normal text-fc-smoke">{user.email}</p>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
@@ -180,7 +192,7 @@ function Header() {
                   </>
                 ) : (
                   <>
-                    <DropdownMenuLabel>Welcome to FreshCart</DropdownMenuLabel>
+                    <DropdownMenuLabel className="text-fc-earth">Welcome to FreshCart</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate("/sign-in")}>
                       <User className="mr-2 h-4 w-4" /> Sign In
@@ -189,8 +201,8 @@ function Header() {
                       <UserRound className="mr-2 h-4 w-4" /> Create Account
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuLabel className="text-xs font-normal text-navy-400">
-                      Demo staff & ops views
+                    <DropdownMenuLabel className="text-xs font-normal text-fc-smoke">
+                      Demo portals
                     </DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => signIn("staff")}>
                       <ClipboardList className="mr-2 h-4 w-4" /> Staff Portal
@@ -211,14 +223,16 @@ function Header() {
           </div>
         </div>
 
+        {/* Mobile search bar */}
         <form onSubmit={submitSearch} className="relative pb-3 md:hidden" role="search">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fc-smoke" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products…"
-            className="h-10 w-full rounded-md border border-navy-200 bg-navy-50 pl-9 pr-4 text-sm placeholder:text-navy-400 focus:border-fresh-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-fresh-500"
+            className="h-10 w-full border border-fc-cream-200 bg-white pl-9 pr-4 text-sm text-fc-earth placeholder:text-fc-smoke focus:border-fc-leaf focus:outline-none focus:ring-1 focus:ring-fc-leaf"
+            style={{ borderRadius: 0 }}
             aria-label="Search products"
           />
         </form>
@@ -242,7 +256,7 @@ const footerLinks = [
       { label: "Orders", to: "/orders" },
       { label: "Wishlist", to: "/wishlist" },
       { label: "Notifications", to: "/notifications" },
-      { label: "Account", to: "/account" },
+      { label: "Account Settings", to: "/account" },
     ],
   },
   {
@@ -257,22 +271,26 @@ const footerLinks = [
 
 function Footer() {
   return (
-    <footer className="border-t border-navy-200 bg-navy-50">
-      <div className="container py-10 sm:py-12">
+    <footer style={{ backgroundColor: "var(--color-fc-earth)" }}>
+      <div className="container py-12 sm:py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <Logo />
-            <p className="mt-3 max-w-xs text-sm text-navy-500 leading-relaxed">
-              Nigeria's own online supermarket. Groceries, household essentials and fresh produce — delivered to your door.
+            <Logo dark />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed" style={{ color: "rgba(247,242,232,0.65)" }}>
+              Nigeria's own online supermarket. Fresh groceries, household essentials — delivered same day in Lagos.
             </p>
           </div>
           {footerLinks.map((col) => (
             <div key={col.title}>
-              <p className="text-sm font-semibold text-navy-900">{col.title}</p>
-              <ul className="mt-3 space-y-2">
+              <p className="text-sm font-bold text-fc-cream">{col.title}</p>
+              <ul className="mt-4 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="text-sm text-navy-500 hover:text-fresh-700 transition-colors">
+                    <Link
+                      to={link.to}
+                      className="text-sm transition-colors hover:text-fc-market"
+                      style={{ color: "rgba(247,242,232,0.65)" }}
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -281,9 +299,16 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-navy-200 pt-6 sm:flex-row">
-          <p className="text-xs text-navy-400">© 2026 FreshCart Supermarket. All rights reserved.</p>
-          <p className="text-xs text-navy-400">Lagos · Abuja · Port Harcourt</p>
+
+        {/* Bottom bar — no middle-dot separators */}
+        <div className="mt-12 flex flex-col items-start justify-between gap-2 border-t pt-6 sm:flex-row sm:items-center"
+             style={{ borderColor: "rgba(247,242,232,0.10)" }}>
+          <p className="text-xs" style={{ color: "rgba(247,242,232,0.40)" }}>
+            © 2026 FreshCart Supermarket. All rights reserved.
+          </p>
+          <p className="text-xs" style={{ color: "rgba(247,242,232,0.40)" }}>
+            Lagos
+          </p>
         </div>
       </div>
     </footer>
@@ -306,7 +331,7 @@ function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-navy-200 md:hidden shadow-lg"
+      className="fixed bottom-0 inset-x-0 z-40 bg-fc-chalk border-t border-fc-cream-200 shadow-lg md:hidden"
       aria-label="Mobile Bottom Navigation"
     >
       <div className="grid grid-cols-6 h-16">
@@ -320,13 +345,21 @@ function MobileBottomNav() {
               to={tab.to}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 transition-colors relative min-w-0 px-1",
-                active ? "text-fresh-700 font-semibold" : "text-navy-500 hover:text-navy-900"
+                active ? "text-fc-market font-semibold" : "text-fc-smoke hover:text-fc-earth"
               )}
             >
               <div className="relative">
-                <tab.icon className={cn("h-5 w-5 shrink-0", active ? "text-fresh-600" : "text-navy-500")} />
+                <tab.icon
+                  className={cn(
+                    "h-5 w-5 shrink-0",
+                    active ? "text-fc-market" : "text-fc-smoke"
+                  )}
+                />
                 {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-fresh-600 px-1 text-[10px] font-bold text-white shadow-2xs">
+                  <span
+                    className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center bg-fc-market px-1 text-[10px] font-bold text-white"
+                    style={{ borderRadius: 0 }}
+                  >
                     {tab.badge}
                   </span>
                 )}
@@ -334,8 +367,9 @@ function MobileBottomNav() {
               <span className="text-[10px] leading-tight truncate w-full text-center">
                 {tab.label}
               </span>
+              {/* Active indicator — 3px top bar, fc-market */}
               {active && (
-                <span className="absolute top-0 inset-x-3 h-0.5 bg-fresh-600 rounded-full" />
+                <span className="absolute top-0 inset-x-3 h-0.5 bg-fc-market" />
               )}
             </Link>
           )
@@ -347,7 +381,7 @@ function MobileBottomNav() {
 
 export function CustomerLayout() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor: "var(--color-fc-chalk)" }}>
       <Header />
       <main className="flex-1 pb-16 md:pb-0">
         <Outlet />

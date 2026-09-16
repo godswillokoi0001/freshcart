@@ -1,16 +1,10 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
 import {
-  ArrowRight,
   Truck,
   ShieldCheck,
-  Clock,
   Percent,
-  Sparkles,
   ShoppingBag,
-  CheckCircle2,
-  ChevronRight,
-  TrendingUp,
 } from "lucide-react"
 import { ProductGrid } from "@components/customer/ProductCard"
 import { CategoryCard } from "@components/customer/CategoryCard"
@@ -21,108 +15,116 @@ import { ProductImage } from "@components/shared/ProductImage"
 
 const deals = dealProducts.slice(0, 5)
 
+/**
+ * Hero — fc-earth background, Fraunces italic headline.
+ *
+ * The ONE animated moment: headline words stagger in on load via
+ * CSS animation-delay on individual word spans. Nothing else
+ * on this page moves.
+ */
 function Hero() {
+  // Split headline into words for the stagger animation
+  const line1 = ["Fresh", "Groceries,"]
+  const line2 = ["Straight", "from", "the", "Market."]
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-slate-900 text-white">
-      {/* Background soft ambient orbs */}
-      <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-10 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
+    <section className="relative overflow-hidden" style={{ backgroundColor: "var(--color-fc-earth)" }}>
+      {/* Diagonal geometry — content-driven, not decorative blur orbs */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 w-1/2 hidden lg:block"
+        style={{ background: "linear-gradient(135deg, transparent 40%, #2D6A2F22 100%)" }}
+      />
 
-      <div className="container relative z-10 grid items-center gap-12 py-12 lg:grid-cols-12 lg:py-20">
-        {/* Left copy & CTA */}
-        <div className="lg:col-span-7">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-800/40 px-3.5 py-1 text-xs font-semibold text-emerald-300 backdrop-blur-xs">
-            <Clock className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Guaranteed Same-Day Delivery Across Lagos</span>
-          </div>
-
-          <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.12]">
-            Fresh Groceries &amp; Market Staples,{" "}
-            <span className="text-emerald-400">At Real Supermarket Prices.</span>
+      <div className="container relative z-10 grid items-stretch gap-0 lg:grid-cols-12 lg:min-h-[540px]">
+        {/* Left — headline, copy, CTA */}
+        <div className="flex flex-col justify-center py-14 lg:col-span-7 lg:pr-12 lg:py-20">
+          {/* No ALL-CAPS eyebrow — the headline leads */}
+          <h1 className="font-display italic font-bold leading-[1.05] text-fc-cream"
+              style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)" }}>
+            {[...line1, ...line2].map((word, i) => {
+              const isNewLine = i === line1.length
+              return (
+                <React.Fragment key={i}>
+                  {isNewLine && <br />}
+                  <span
+                    className="fc-hero-word"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                  >
+                    {word}
+                    {i < line1.length + line2.length - 1 ? "\u00A0" : ""}
+                  </span>
+                </React.Fragment>
+              )
+            })}
           </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            Shop rice, beans, fresh farm vegetables, chilled meat, dairy, and household essentials. Packaged with care and delivered directly to your doorstep.
+          <p className="mt-5 max-w-md text-base leading-relaxed" style={{ color: "var(--color-fc-smoke-light)" }}>
+            Rice, palm oil, fresh tomatoes, Indomie, whole chicken, eggs —
+            packed at our Lagos warehouse and at your door the same day.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3.5">
+          {/* Single primary CTA — no arrows, no secondary ghost duplicate */}
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 active:scale-95 transition-all"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-bold text-fc-earth transition-colors hover:bg-fc-amber active:scale-[0.98]"
+              style={{ backgroundColor: "var(--color-fc-amber)", borderRadius: 0 }}
             >
               <ShoppingBag className="h-4 w-4" />
-              Shop Supermarket
+              Shop the Supermarket
             </Link>
             <Link
               to="/deals"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-xs hover:bg-white/15 transition-all"
+              className="text-sm font-semibold underline underline-offset-4 transition-colors hover:text-fc-amber"
+              style={{ color: "var(--color-fc-smoke-light)" }}
             >
-              <Percent className="h-4 w-4 text-amber-400" />
-              Explore Deals
+              Today's deals
             </Link>
           </div>
 
-          {/* Supermarket Metric Counters */}
-          <div className="mt-10 grid grid-cols-3 gap-6 border-t border-emerald-800/60 pt-6">
+          {/* Stats — plain numbers, no icon decoration */}
+          <div className="mt-10 grid grid-cols-3 gap-6 border-t pt-8"
+               style={{ borderColor: "rgba(247,242,232,0.12)" }}>
             <div>
-              <p className="text-2xl sm:text-3xl font-black text-white">5,000+</p>
-              <p className="text-xs font-medium text-slate-400 mt-0.5">Fresh Products</p>
+              <p className="text-2xl font-bold text-fc-cream sm:text-3xl">5,000+</p>
+              <p className="mt-1 text-xs" style={{ color: "var(--color-fc-smoke-light)" }}>
+                Products in stock
+              </p>
             </div>
             <div>
-              <p className="text-2xl sm:text-3xl font-black text-white">7 Days</p>
-              <p className="text-xs font-medium text-slate-400 mt-0.5">Express Dispatch</p>
+              <p className="text-2xl font-bold text-fc-cream sm:text-3xl">Same day</p>
+              <p className="mt-1 text-xs" style={{ color: "var(--color-fc-smoke-light)" }}>
+                Dispatch across Lagos
+              </p>
             </div>
             <div>
-              <p className="text-2xl sm:text-3xl font-black text-emerald-400">100%</p>
-              <p className="text-xs font-medium text-slate-400 mt-0.5">Freshness Assured</p>
+              <p className="text-2xl font-bold sm:text-3xl" style={{ color: "var(--color-fc-amber)" }}>
+                100%
+              </p>
+              <p className="mt-1 text-xs" style={{ color: "var(--color-fc-smoke-light)" }}>
+                Freshness guarantee
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Right visual card showcase */}
-        <div className="relative lg:col-span-5">
-          <div className="relative mx-auto max-w-md rounded-2xl border border-white/15 bg-white/5 p-4 backdrop-blur-md shadow-2xl">
-            <div className="relative h-64 sm:h-72 w-full overflow-hidden rounded-xl">
-              <img
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1000&q=80"
-                alt="Fresh produce supermarket aisle"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20" />
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-400">Fresh Harvest Daily</p>
-                  <p className="text-sm font-bold">Farm-Checked Quality Guarantee</p>
-                </div>
-                <span className="rounded-lg bg-emerald-500/90 px-2.5 py-1 text-xs font-extrabold text-slate-950">
-                  Lagos Metro
-                </span>
-              </div>
-            </div>
-
-            {/* Quick-buy snapshot strip */}
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {[
-                { name: "Farm Eggs", img: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=300&q=80", price: "₦5,200", link: "/categories/eggs" },
-                { name: "Long Grain Rice", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80", price: "₦14,500", link: "/categories/rice" },
-                { name: "Fresh Chicken", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=300&q=80", price: "₦6,800", link: "/categories/chicken" },
-              ].map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.link}
-                  className="group flex flex-col items-center rounded-lg bg-white/10 p-2 text-center transition-colors hover:bg-white/20"
-                >
-                  <img
-                    src={item.img}
-                    alt={item.name}
-                    className="h-12 w-12 rounded-md object-cover transition-transform group-hover:scale-105"
-                  />
-                  <span className="mt-1.5 text-[11px] font-medium text-slate-200 truncate w-full">
-                    {item.name}
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-400">{item.price}</span>
-                </Link>
-              ))}
+        {/* Right — stacked product photography, no glass card */}
+        <div className="hidden lg:flex lg:col-span-5 items-stretch">
+          <div className="relative w-full overflow-hidden" style={{ clipPath: "polygon(8% 0, 100% 0, 100% 100%, 0 100%)" }}>
+            <img
+              src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80"
+              alt="Fresh produce supermarket aisle"
+              className="h-full w-full object-cover"
+            />
+            {/* Bottom overlay — restrained, content-only */}
+            <div className="absolute inset-x-0 bottom-0 p-6"
+                 style={{ background: "linear-gradient(to top, rgba(26,18,8,0.85) 0%, transparent 100%)" }}>
+              <p className="text-xs font-semibold text-fc-cream/60 uppercase tracking-wide mb-1">
+                Farm-checked daily
+              </p>
+              <p className="text-sm font-bold text-fc-cream">
+                Quality you can see before it ships.
+              </p>
             </div>
           </div>
         </div>
@@ -131,206 +133,239 @@ function Hero() {
   )
 }
 
-function ValueProps() {
-  const items = [
-    {
-      icon: Truck,
-      title: "Same-Day Delivery",
-      text: "Convenient morning & evening delivery slots across all Lagos zones.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "100% Quality Checked",
-      text: "Hand-graded fruits, vegetables, and butcher meats or full refund.",
-    },
-    {
-      icon: Percent,
-      title: "Direct Wholesale Rates",
-      text: "No middleman markup — transparent pricing with seasonal deals.",
-    },
-    {
-      icon: Sparkles,
-      title: "Secure Checkout",
-      text: "Pay with Cards, Bank Transfer, USSD, or Pay on Delivery.",
-    },
+/**
+ * Trust bar — fc-market strip. Copy only. No icons. No cards.
+ * The claims are concrete and specific, not vague value-prop speak.
+ */
+function TrustBar() {
+  const claims = [
+    "Packed and dispatched same day, Mon–Sat",
+    "Hand-sorted produce or your money back",
+    "Pay on delivery available across Lagos",
   ]
 
   return (
-    <section className="border-b border-slate-200 bg-white py-8">
-      <div className="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map((it) => (
-          <div
-            key={it.title}
-            className="flex items-start gap-3.5 rounded-xl border border-slate-100 bg-slate-50/60 p-4 transition-colors hover:bg-slate-50"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
-              <it.icon className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-900">{it.title}</p>
-              <p className="mt-0.5 text-xs text-slate-600 leading-relaxed">{it.text}</p>
-            </div>
-          </div>
-        ))}
+    <div style={{ backgroundColor: "var(--color-fc-market)" }}>
+      <div className="container py-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-white/25">
+          {claims.map((claim) => (
+            <p key={claim} className="text-center text-sm font-semibold text-white sm:px-4">
+              {claim}
+            </p>
+          ))}
+        </div>
       </div>
-    </section>
+    </div>
   )
 }
 
+/**
+ * DealStrip — fc-cream background, Fraunces section heading.
+ * Cards: sharp corners, leaf border on hover only, no lift.
+ */
 function DealStrip() {
   return (
-    <section className="container py-10">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-xs font-extrabold uppercase tracking-wider text-rose-600">
-              Limited Time Deals
-            </span>
-          </div>
-          <h2 className="mt-1 text-2xl font-black text-slate-900 sm:text-3xl">Today's Best Supermarket Deals</h2>
-          <p className="mt-1 text-sm text-slate-500">Save big on staple groceries before stock runs out.</p>
-        </div>
-        <Link
-          to="/deals"
-          className="inline-flex items-center gap-1 text-sm font-bold text-emerald-700 hover:text-emerald-800"
-        >
-          View all deals <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {deals.map((p) => {
-          const discount = discountPercent(p.price, p.compareAtPrice)
-          return (
-            <Link
-              key={p.id}
-              to={`/products/${p.slug}`}
-              className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-xs transition-all hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md"
-            >
-              <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-slate-50">
-                <ProductImage
-                  productName={p.name}
-                  categoryName={p.categoryName}
-                  imageUrl={p.imageUrl}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  size="md"
-                />
-                {discount && (
-                  <span className="absolute left-2 top-2 rounded-md bg-rose-600 px-2 py-0.5 text-[11px] font-extrabold text-white">
-                    {discount}% OFF
-                  </span>
-                )}
-              </div>
-
-              <div className="mt-3 flex flex-1 flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
-                  {p.brand}
-                </span>
-                <p className="mt-0.5 line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-emerald-700">
-                  {p.name}
-                </p>
-                <span className="text-xs text-slate-500 mt-0.5">{p.unit}</span>
-
-                <div className="mt-auto pt-2 flex items-baseline gap-2">
-                  <span className="text-base font-extrabold text-slate-900">
-                    {formatNaira(p.price)}
-                  </span>
-                  {p.compareAtPrice && (
-                    <span className="text-xs text-slate-400 line-through">
-                      {formatNaira(p.compareAtPrice)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
-function CategoryGrid() {
-  return (
-    <section className="bg-slate-50/70 border-y border-slate-200/80 py-12">
-      <div className="container">
-        <div className="mb-6 flex items-end justify-between">
+    <section style={{ backgroundColor: "var(--color-fc-cream)" }}>
+      <div className="container py-12">
+        {/* Section heading — Fraunces, direct copy */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 sm:text-3xl">Shop By Department</h2>
-            <p className="mt-1 text-sm text-slate-600">Fresh farm harvest, dry pantry, butchery, dairy &amp; home essentials.</p>
+            <h2 className="font-display italic font-bold text-fc-earth"
+                style={{ fontSize: "clamp(1.75rem, 3vw, 2.25rem)", lineHeight: 1.1 }}>
+              Today's best prices
+            </h2>
+            <p className="mt-2 text-sm text-fc-smoke">
+              Staple groceries at below-market rates — stock sells fast.
+            </p>
           </div>
           <Link
-            to="/categories"
-            className="hidden sm:inline-flex items-center gap-1 text-sm font-bold text-emerald-700 hover:text-emerald-800"
+            to="/deals"
+            className="shrink-0 text-sm font-semibold text-fc-leaf underline underline-offset-4 hover:text-fc-leaf-700 transition-colors"
           >
-            All 22 categories <ArrowRight className="h-4 w-4" />
+            See all deals
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-px bg-fc-cream-200 sm:grid-cols-3 lg:grid-cols-5">
+          {deals.map((p) => {
+            const discount = discountPercent(p.price, p.compareAtPrice)
+            return (
+              <Link
+                key={p.id}
+                to={`/products/${p.slug}`}
+                className="group relative flex flex-col overflow-hidden bg-white border-0 transition-colors hover:border-fc-leaf"
+                style={{ borderRadius: 0 }}
+              >
+                <div className="relative aspect-square w-full overflow-hidden bg-fc-chalk">
+                  <ProductImage
+                    productName={p.name}
+                    categoryName={p.categoryName}
+                    imageUrl={p.imageUrl}
+                    className="h-full w-full object-cover"
+                    size="md"
+                  />
+                  {discount && (
+                    <span
+                      className="absolute left-0 top-3 bg-fc-market px-2.5 py-0.5 text-[11px] font-bold text-white"
+                      style={{ borderRadius: 0 }}
+                    >
+                      {discount}% OFF
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-1 flex-col p-3">
+                  <span className="text-xs font-semibold text-fc-leaf line-clamp-1">
+                    {p.brand}
+                  </span>
+                  <p className="mt-0.5 line-clamp-2 text-sm font-semibold text-fc-earth group-hover:text-fc-market transition-colors">
+                    {p.name}
+                  </p>
+                  <span className="text-xs text-fc-smoke mt-0.5">{p.unit}</span>
+
+                  <div className="mt-auto pt-2 flex items-baseline gap-2">
+                    <span className="text-base font-bold text-fc-earth">
+                      {formatNaira(p.price)}
+                    </span>
+                    {p.compareAtPrice && (
+                      <span className="text-xs text-fc-smoke line-through">
+                        {formatNaira(p.compareAtPrice)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * CategoryGrid — fc-chalk background, rectangular tiles (not circles).
+ * Horizontal scroll on mobile so aisles feel like a market row.
+ */
+function CategoryGrid() {
+  return (
+    <section style={{ backgroundColor: "var(--color-fc-chalk)" }} className="border-y border-fc-cream-200">
+      <div className="container py-12">
+        <div className="mb-7 flex items-end justify-between">
+          <div>
+            <h2 className="font-display italic font-bold text-fc-earth"
+                style={{ fontSize: "clamp(1.75rem, 3vw, 2.25rem)", lineHeight: 1.1 }}>
+              Shop by aisle
+            </h2>
+            <p className="mt-2 text-sm text-fc-smoke">
+              Fresh farm, dry pantry, butchery, dairy and home.
+            </p>
+          </div>
+          <Link
+            to="/categories"
+            className="hidden sm:block shrink-0 text-sm font-semibold text-fc-leaf underline underline-offset-4 hover:text-fc-leaf-700 transition-colors"
+          >
+            All 22 aisles
+          </Link>
+        </div>
+
+        {/* Grid — rectangular tiles, no circles */}
+        <div className="grid grid-cols-2 gap-px bg-fc-cream-200 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
           {categories.slice(0, 16).map((c) => (
             <CategoryCard key={c.id} category={c} />
           ))}
         </div>
-      </div>
-    </section>
-  )
-}
 
-function PopularStrip() {
-  return (
-    <section className="container py-12">
-      <div className="mb-6 flex items-end justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
-            <TrendingUp className="h-4 w-4" />
-            <span>Top Picks</span>
-          </div>
-          <h2 className="mt-1 text-2xl font-black text-slate-900 sm:text-3xl">Popular In Lagos This Week</h2>
-          <p className="mt-1 text-sm text-slate-500">Most ordered groceries by local households and families.</p>
-        </div>
         <Link
-          to="/shop"
-          className="inline-flex items-center gap-1 text-sm font-bold text-emerald-700 hover:text-emerald-800"
+          to="/categories"
+          className="mt-5 block text-center text-sm font-semibold text-fc-leaf underline underline-offset-4 hover:text-fc-leaf-700 sm:hidden"
         >
-          Full supermarket <ArrowRight className="h-4 w-4" />
+          All 22 aisles
         </Link>
       </div>
-
-      <ProductGrid products={featuredProducts.slice(0, 10)} />
     </section>
   )
 }
 
-function SupermarketPromoBanner() {
+/**
+ * Promo band — fc-leaf background, Fraunces headline.
+ * Coupon code looks like a torn paper ticket: fc-amber bg, slight rotation.
+ * The one deliberately decorative element — restrained to this single component.
+ */
+function PromoBand() {
   return (
-    <section className="container py-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-800 to-teal-900 p-8 text-white shadow-lg sm:p-10">
-        <div className="relative z-10 max-w-xl">
-          <span className="inline-block rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-300">
-            New Customer Special
-          </span>
-          <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl text-white">
-            Get ₦500 Off Your First Grocery Order
-          </h2>
-          <p className="mt-2 text-sm sm:text-base text-emerald-100/90 leading-relaxed">
-            Stock your kitchen today with fresh Nigerian staples. Apply code{" "}
-            <span className="font-mono font-bold text-amber-300 bg-emerald-950/60 px-2 py-0.5 rounded">FRESH500</span>{" "}
-            at checkout on orders above ₦5,000.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+    <section style={{ backgroundColor: "var(--color-fc-leaf)" }}>
+      <div className="container py-14">
+        <div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-lg">
+            <h2
+              className="font-display italic font-bold text-fc-cream"
+              style={{ fontSize: "clamp(2rem, 3.5vw, 2.75rem)", lineHeight: 1.05 }}
+            >
+              ₦500 off your first grocery run.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "rgba(247,242,232,0.75)" }}>
+              Stock your kitchen with fresh Nigerian staples. Works on orders above ₦5,000.
+              Free delivery on orders over ₦50,000.
+            </p>
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-emerald-900 shadow-md hover:bg-slate-100 transition-colors"
+              className="mt-6 inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-fc-leaf transition-colors hover:bg-fc-amber"
+              style={{ backgroundColor: "var(--color-fc-cream)", borderRadius: 0 }}
             >
-              Start Shopping Now <ArrowRight className="h-4 w-4" />
+              Start shopping
             </Link>
-            <span className="text-xs text-emerald-200">
-              Free delivery on orders over ₦50,000
-            </span>
+          </div>
+
+          {/* Coupon ticket — the one deliberate decorative flourish */}
+          <div className="fc-ticket shrink-0">
+            <div
+              className="border-2 border-dashed border-fc-leaf-700 px-8 py-5 text-center shadow-md"
+              style={{ backgroundColor: "var(--color-fc-amber)", borderRadius: 0 }}
+            >
+              <p className="text-xs font-semibold text-fc-earth/60 uppercase tracking-widest mb-1">
+                Promo code
+              </p>
+              <p className="text-3xl font-bold tracking-tight text-fc-earth font-display italic">
+                FRESH500
+              </p>
+              <p className="mt-1 text-xs text-fc-earth/70">
+                New customers · Min. order ₦5,000
+              </p>
+            </div>
           </div>
         </div>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Popular strip — fc-chalk background, same sharp card system.
+ */
+function PopularStrip() {
+  return (
+    <section style={{ backgroundColor: "var(--color-fc-chalk)" }}>
+      <div className="container py-12">
+        <div className="mb-7 flex items-end justify-between">
+          <div>
+            <h2 className="font-display italic font-bold text-fc-earth"
+                style={{ fontSize: "clamp(1.75rem, 3vw, 2.25rem)", lineHeight: 1.1 }}>
+              Popular in Lagos this week
+            </h2>
+            <p className="mt-2 text-sm text-fc-smoke">
+              Most ordered by local households — ordered and delivered same day.
+            </p>
+          </div>
+          <Link
+            to="/shop"
+            className="hidden sm:block shrink-0 text-sm font-semibold text-fc-leaf underline underline-offset-4 hover:text-fc-leaf-700 transition-colors"
+          >
+            Full supermarket
+          </Link>
+        </div>
+
+        <ProductGrid products={featuredProducts.slice(0, 10)} />
       </div>
     </section>
   )
@@ -338,12 +373,12 @@ function SupermarketPromoBanner() {
 
 export function HomePage() {
   return (
-    <div className="pb-10">
+    <div>
       <Hero />
-      <ValueProps />
+      <TrustBar />
       <DealStrip />
       <CategoryGrid />
-      <SupermarketPromoBanner />
+      <PromoBand />
       <PopularStrip />
     </div>
   )

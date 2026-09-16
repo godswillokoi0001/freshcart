@@ -1,10 +1,20 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
-import { ChevronRight, ArrowRight, Package } from "lucide-react"
+import { ChevronRight, Package } from "lucide-react"
 import type { Category } from "@app-types/index"
 import { categoryVisual } from "@lib/catalog"
 import { cn } from "@lib/utils"
 
+/**
+ * CategoryCard — rectangular tile (not circular), market-aisle style.
+ *
+ * Design decisions vs. previous version:
+ * - 3:2 rectangular image (not circular) — reads like a product shelf label
+ * - No hover:-translate-y-1 or hover:shadow-md
+ * - On hover: only the category name gets an fc-market underline
+ * - No uppercase tracking-wider eyebrow label
+ * - Sharp corners throughout
+ */
 export function CategoryCard({ category, className }: { category: Category; className?: string }) {
   const visual = categoryVisual(category.name)
   const [imgError, setImgError] = React.useState(false)
@@ -13,16 +23,18 @@ export function CategoryCard({ category, className }: { category: Category; clas
     <Link
       to={`/categories/${category.slug}`}
       className={cn(
-        "group relative flex flex-col items-center overflow-hidden rounded-xl border border-slate-200 bg-white p-3 text-center shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500 hover:shadow-md",
+        "group flex flex-col overflow-hidden bg-white border border-fc-cream-200 hover:border-fc-leaf transition-colors duration-150",
         className
       )}
+      style={{ borderRadius: 0 }}
     >
-      <div className="relative mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full ring-2 ring-slate-100 group-hover:ring-emerald-200 transition-all">
+      {/* Rectangular 3:2 image — not a circle */}
+      <div className="relative aspect-[3/2] w-full overflow-hidden bg-fc-cream">
         {category.imageUrl && !imgError ? (
           <img
             src={category.imageUrl}
             alt={category.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-115"
+            className="h-full w-full object-cover"
             loading="lazy"
             onError={() => setImgError(true)}
           />
@@ -31,16 +43,25 @@ export function CategoryCard({ category, className }: { category: Category; clas
             className="flex h-full w-full items-center justify-center"
             style={{ backgroundColor: visual.tint, color: visual.accent }}
           >
-            <Package className="h-8 w-8" />
+            <Package className="h-8 w-8 opacity-60" />
           </div>
         )}
       </div>
-      <span className="text-sm font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
-        {category.name}
-      </span>
-      <span className="mt-0.5 text-xs font-medium text-slate-500">
-        {category.productCount} items
-      </span>
+
+      {/* Name and count — below the image, left-aligned */}
+      <div className="px-3 py-2.5">
+        <span
+          className={cn(
+            "block text-sm font-semibold text-fc-earth transition-colors line-clamp-1",
+            "group-hover:text-fc-market group-hover:underline underline-offset-2"
+          )}
+        >
+          {category.name}
+        </span>
+        <span className="mt-0.5 block text-xs text-fc-smoke">
+          {category.productCount} items
+        </span>
+      </div>
     </Link>
   )
 }
@@ -51,38 +72,41 @@ export function CategoryBanner({ category }: { category: Category }) {
 
   return (
     <div
-      className="relative flex flex-col sm:flex-row items-center justify-between overflow-hidden rounded-2xl border border-slate-200 p-6 sm:p-8"
-      style={{ backgroundColor: visual.tint }}
+      className="relative flex flex-col sm:flex-row items-center justify-between overflow-hidden border border-fc-cream-200 p-6 sm:p-8"
+      style={{ backgroundColor: visual.tint, borderRadius: 0 }}
     >
       <div className="z-10 max-w-lg">
-        <span
-          className="inline-block rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur-xs"
-          style={{ color: visual.accent }}
-        >
-          Supermarket Category
-        </span>
-        <h1 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">{category.name}</h1>
-        <p className="mt-2 text-sm text-slate-700 sm:text-base leading-relaxed">{category.description}</p>
+        <p className="text-xs font-semibold text-fc-smoke uppercase tracking-wide">
+          Department
+        </p>
+        <h1 className="mt-1 font-display italic text-3xl font-bold text-fc-earth sm:text-4xl">
+          {category.name}
+        </h1>
+        <p className="mt-2 text-sm text-fc-earth/70 sm:text-base leading-relaxed">
+          {category.description}
+        </p>
         <Link
           to="/categories"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 hover:text-emerald-700 transition-colors"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-fc-leaf hover:text-fc-leaf-700 transition-colors"
         >
-          Browse all categories <ChevronRight className="h-4 w-4" />
+          All departments <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
+
       {category.imageUrl && !imgError ? (
         <div className="mt-6 sm:mt-0 sm:ml-6 shrink-0">
           <img
             src={category.imageUrl}
             alt={category.name}
-            className="h-32 w-32 sm:h-40 sm:w-40 rounded-2xl object-cover shadow-md ring-4 ring-white/60"
+            className="h-32 w-32 sm:h-40 sm:w-40 object-cover shadow-md ring-4 ring-white/60"
+            style={{ borderRadius: 0 }}
             onError={() => setImgError(true)}
           />
         </div>
       ) : (
         <div
-          className="mt-6 sm:mt-0 sm:ml-6 flex h-32 w-32 sm:h-40 sm:w-40 items-center justify-center rounded-2xl shadow-md ring-4 ring-white/60"
-          style={{ backgroundColor: `${visual.accent}20`, color: visual.accent }}
+          className="mt-6 sm:mt-0 sm:ml-6 flex h-32 w-32 sm:h-40 sm:w-40 items-center justify-center shadow-md"
+          style={{ backgroundColor: `${visual.accent}20`, color: visual.accent, borderRadius: 0 }}
         >
           <Package className="h-16 w-16" />
         </div>
@@ -90,4 +114,3 @@ export function CategoryBanner({ category }: { category: Category }) {
     </div>
   )
 }
-
