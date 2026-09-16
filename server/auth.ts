@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { v4 as uuidv4 } from "uuid"
+import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs"
 import { supabase } from "./supabase"
 import { query } from "./db"
@@ -12,6 +12,8 @@ export interface AuthUser {
   name: string
   role: "customer" | "admin" | "staff" | "rider" | "super-admin"
   staffRole?: string
+  phone?: string
+  status?: string
 }
 
 declare global {
@@ -39,6 +41,8 @@ export function generateToken(user: AuthUser): string {
       name: user.name,
       role: user.role,
       staffRole: user.staffRole,
+      phone: user.phone,
+      status: user.status,
     },
     JWT_SECRET,
     { expiresIn: "7d" }
@@ -46,29 +50,51 @@ export function generateToken(user: AuthUser): string {
 }
 
 export async function resolveAuthUser(token: string): Promise<AuthUser | null> {
-  // 1. Try Supabase Auth token only
+  // 1. Try local JWT token first
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as any
+    if (decoded && decoded.id && decoded.email) {
+      return {
+        id: decoded.id,
+        email: decoded.email,
+        name: decoded.name || decoded.email.split("@")[0],
+        role: decoded.role || "customer",
+        staffRole: decoded.staffRole,
+        phone: decoded.phone || "",
+        status: decoded.status || "ACTIVE",
+      }
+    }
+  } catch {
+    // Not a local JWT or expired, try Supabase next
+  }
+
+  // 2. Try Supabase Auth token
   try {
     const { data, error } = await supabase.auth.getUser(token)
     if (!error && data?.user) {
       const sbUser = data.user
-      // Query profile/role from database
-      const profileRes = await query(
-        `SELECT p.id, p.email, p.full_name, p.role, p.status, sp.staff_role
-         FROM profiles p
-         LEFT JOIN staff_profiles sp ON sp.user_id = p.id
-         WHERE p.id = $1::uuid OR p.email = $2`,
-        [sbUser.id, sbUser.email]
-      )
+      try {
+        const profileRes = await query(
+          `SELECT p.id, p.email, p.full_name, p.role, p.status, sp.staff_role
+           FROM profiles p
+           LEFT JOIN staff_profiles sp ON sp.user_id = p.id
+           WHERE p.id = $1::uuid OR p.email = $2`,
+          [sbUser.id, sbUser.email]
+        )
 
-      if (profileRes.rows.length > 0) {
-        const p = profileRes.rows[0]
-        return {
-          id: p.id,
-          email: p.email,
-          name: p.full_name || sbUser.user_metadata?.full_name || p.email.split("@")[0],
-          role: (p.role as any) || sbUser.user_metadata?.role || "customer",
-          staffRole: p.staff_role,
+        if (profileRes.rows.length > 0) {
+          const p = profileRes.rows[0]
+          return {
+            id: p.id,
+            email: p.email,
+            name: p.full_name || sbUser.user_metadata?.full_name || p.email.split("@")[0],
+            role: (p.role as any) || sbUser.user_metadata?.role || "customer",
+            staffRole: p.staff_role,
+            status: p.status || "ACTIVE",
+          }
         }
+      } catch {
+        // If DB is offline, use metadata
       }
 
       // Fallback to metadata
@@ -77,6 +103,7 @@ export async function resolveAuthUser(token: string): Promise<AuthUser | null> {
         email: sbUser.email || "",
         name: sbUser.user_metadata?.full_name || sbUser.email?.split("@")[0] || "Customer",
         role: sbUser.user_metadata?.role || "customer",
+        status: "ACTIVE",
       }
     }
   } catch (err) {

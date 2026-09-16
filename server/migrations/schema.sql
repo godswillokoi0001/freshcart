@@ -48,9 +48,21 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- 3b. Verification Codes (for password reset, login OTP, email verification)
+CREATE TABLE IF NOT EXISTS verification_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL,
+  code TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'RESET_PASSWORD',
+  expires_at TIMESTAMPTZ NOT NULL,
+  used BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_verification_codes_lookup ON verification_codes(email, code, used);
+
 -- 4. Staff Profiles
 CREATE TABLE IF NOT EXISTS staff_profiles (
-  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   staff_role TEXT NOT NULL DEFAULT 'STAFF' CHECK (staff_role IN ('STAFF', 'SUPERVISOR', 'SUPER_ADMIN')),
   orders_fulfilled INTEGER NOT NULL DEFAULT 0,
   last_active TIMESTAMPTZ DEFAULT NOW()
@@ -58,7 +70,7 @@ CREATE TABLE IF NOT EXISTS staff_profiles (
 
 -- 5. Rider Profiles
 CREATE TABLE IF NOT EXISTS rider_profiles (
-  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   vehicle TEXT DEFAULT 'Motorcycle',
   rider_status TEXT NOT NULL DEFAULT 'AVAILABLE' CHECK (rider_status IN ('AVAILABLE', 'ON_DELIVERY', 'OFFLINE')),
   deliveries_completed INTEGER NOT NULL DEFAULT 0,
@@ -69,7 +81,7 @@ CREATE TABLE IF NOT EXISTS rider_profiles (
 
 -- 6. Admin Profiles
 CREATE TABLE IF NOT EXISTS admin_profiles (
-  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   department TEXT DEFAULT 'Operations',
   permissions JSONB DEFAULT '["all"]'::jsonb,
   last_login TIMESTAMPTZ DEFAULT NOW(),

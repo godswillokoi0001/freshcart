@@ -1,4 +1,7 @@
-const apiKey = process.env.EMAIL_API_KEY || ""
+function getApiKey(): string {
+  return process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY || ""
+}
+
 const DEFAULT_FROM = process.env.EMAIL_FROM || process.env.RESEND_FROM_EMAIL || "FreshCart <onboarding@resend.dev>"
 const VERIFIED_TEST_EMAIL = process.env.RESEND_TO_EMAIL || process.env.ADMIN_EMAIL || "censusokoi515@gmail.com"
 
@@ -11,6 +14,7 @@ export async function sendEmail({
   subject: string
   html: string
 }) {
+  const apiKey = getApiKey()
   if (!apiKey) {
     console.log(`[Email Mock] To: ${to} | Subject: ${subject}`)
     return { success: true, mocked: true }
@@ -186,3 +190,102 @@ export async function sendOrderDeliveredEmail(
     `,
   })
 }
+
+export async function sendVerificationCodeEmail(
+  to: string,
+  code: string,
+  type: "RESET_PASSWORD" | "LOGIN_OTP" | "SIGNUP_VERIFY" = "RESET_PASSWORD",
+  name?: string
+) {
+  let title = "Your Verification Code"
+  let lead = "Use the following 6-digit code to complete your verification:"
+  let subject = `FreshCart Security Code: ${code}`
+
+  if (type === "RESET_PASSWORD") {
+    title = "Reset Your Password"
+    lead = "We received a request to reset your FreshCart password. Enter this verification code to proceed:"
+    subject = `Your FreshCart Password Reset Code: ${code}`
+  } else if (type === "LOGIN_OTP") {
+    title = "Sign In to FreshCart"
+    lead = "Use this one-time code to sign in to your FreshCart account:"
+    subject = `Your FreshCart Login Code: ${code}`
+  } else if (type === "SIGNUP_VERIFY") {
+    title = "Verify Your Account"
+    lead = "Welcome to FreshCart! Enter this verification code to activate your account:"
+    subject = `Verify Your FreshCart Account: ${code}`
+  }
+
+  const greeting = name ? `Hello ${name},` : "Hello,"
+
+  return sendEmail({
+    to,
+    subject,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ede5d3; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <!-- Header -->
+        <div style="background-color: #1A1208; padding: 24px; text-align: center; border-bottom: 3px solid #E8521A;">
+          <h1 style="color: #F7F2E8; margin: 0; font-size: 24px; font-weight: 700;">
+            <span style="color: #F7F2E8; font-style: italic; font-family: Georgia, serif;">Fresh</span><span style="color: #E8521A;">Cart</span>
+          </h1>
+          <p style="color: #EDE5D3; margin: 6px 0 0 0; font-size: 13px; opacity: 0.85;">Nigeria's Online Supermarket</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 32px 28px;">
+          <h2 style="color: #1A1208; font-size: 20px; font-weight: 700; margin: 0 0 12px 0;">${title}</h2>
+          <p style="font-size: 15px; color: #4b3e34; margin: 0 0 16px 0; line-height: 1.6;">${greeting}</p>
+          <p style="font-size: 15px; color: #4b3e34; margin: 0 0 24px 0; line-height: 1.6;">${lead}</p>
+
+          <!-- Code Box -->
+          <div style="background-color: #F7F2E8; border: 2px dashed #E8521A; border-radius: 6px; padding: 20px; text-align: center; margin: 24px 0;">
+            <span style="font-family: 'Courier New', Courier, monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #1A1208; display: inline-block;">
+              ${code}
+            </span>
+          </div>
+
+          <p style="font-size: 13px; color: #73675c; line-height: 1.6; margin: 0 0 12px 0;">
+            ⏳ This code is valid for <strong>15 minutes</strong>. For your security, never share this code with anyone.
+          </p>
+          <p style="font-size: 13px; color: #a19588; line-height: 1.5; margin: 20px 0 0 0; border-top: 1px solid #ede5d3; padding-top: 16px;">
+            If you did not request this code, you can safely ignore this email — your account remains secure.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #1A1208; padding: 18px 24px; text-align: center;">
+          <p style="color: #EDE5D3; font-size: 12px; margin: 0; opacity: 0.7;">
+            © 2026 FreshCart Supermarket. All rights reserved. Lagos, Nigeria.
+          </p>
+        </div>
+      </div>
+    `,
+  })
+}
+
+export async function sendPasswordResetSuccessEmail(to: string, name?: string) {
+  const greeting = name ? `Hello ${name},` : "Hello,"
+  return sendEmail({
+    to,
+    subject: "Your FreshCart Password Has Been Changed",
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ede5d3; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #1A1208; padding: 24px; text-align: center; border-bottom: 3px solid #2D6A2F;">
+          <h1 style="color: #F7F2E8; margin: 0; font-size: 24px; font-weight: 700;">
+            <span style="color: #F7F2E8; font-style: italic; font-family: Georgia, serif;">Fresh</span><span style="color: #E8521A;">Cart</span>
+          </h1>
+        </div>
+        <div style="padding: 32px 28px;">
+          <h2 style="color: #1A1208; font-size: 20px; font-weight: 700; margin: 0 0 12px 0;">Password Successfully Updated</h2>
+          <p style="font-size: 15px; color: #4b3e34; margin: 0 0 16px 0; line-height: 1.6;">${greeting}</p>
+          <p style="font-size: 15px; color: #4b3e34; margin: 0 0 24px 0; line-height: 1.6;">
+            Your password was recently updated. If you made this change, you do not need to do anything.
+          </p>
+          <p style="font-size: 13px; color: #dc2626; margin: 16px 0 0 0;">
+            If you did not make this change, please reset your password immediately or contact our support team.
+          </p>
+        </div>
+      </div>
+    `,
+  })
+}
+

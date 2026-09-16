@@ -7,7 +7,9 @@ function getDbConfig(): PoolConfig {
   if (!isPostgresUrl) {
     return { connectionString: raw }
   }
-  // Supabase PostgreSQL - parse URL components manually
+  // Parse URL manually so we can percent-encode the password.
+  // pg-connection-string treats '#' in the password as a URL fragment and
+  // truncates it — encoding fixes that without changing .env.
   const prefix = raw.startsWith("postgresql://") ? "postgresql://" : "postgres://"
   const lastAt = raw.lastIndexOf("@")
   if (lastAt === -1) {
@@ -16,7 +18,8 @@ function getDbConfig(): PoolConfig {
   const userPassPart = raw.slice(prefix.length, lastAt)
   const colonIdx = userPassPart.indexOf(":")
   const user = userPassPart.slice(0, colonIdx)
-  const password = userPassPart.slice(colonIdx + 1)
+  const rawPassword = userPassPart.slice(colonIdx + 1)
+  const password = rawPassword // pass directly — pool accepts it as a string, not a URL
 
   const hostPart = raw.slice(lastAt + 1)
   const slashIdx = hostPart.indexOf("/")

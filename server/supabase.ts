@@ -1,7 +1,14 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://nlwnktvqrtcsxkqqriqv.supabase.co/rest/v1/"
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_hGM5EEQFi3waSVQ1af1csA_NlItXLsQ"
+// Strip /rest/v1/ if present — the JS SDK needs the base project URL
+const rawUrl = process.env.VITE_SUPABASE_URL || "https://nlwnktvqrtcsxkqqriqv.supabase.co/rest/v1/"
+const supabaseUrl = rawUrl.replace(/\/rest\/v1\/?$/, "")
+// Prefer the service role key server-side so admin operations (storage buckets,
+// uploads, auth) bypass RLS. Falls back to anon key for local dev.
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  "sb_publishable_hGM5EEQFi3waSVQ1af1csA_NlItXLsQ"
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 

@@ -77,6 +77,24 @@ export const authApi = {
     }),
 
   getMe: () => apiFetch<{ user: any }>("/auth/me"),
+
+  sendResetCode: (email: string) =>
+    apiFetch<{ success: boolean; message: string }>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  verifyCode: (data: { email: string; code: string }) =>
+    apiFetch<{ valid: boolean; message: string }>("/auth/verify-code", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  resetPasswordWithCode: (data: { email: string; code: string; newPassword: string }) =>
+    apiFetch<{ success: boolean; message: string; token?: string; user?: any }>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 }
 
 // ---------------- PRODUCTS API ----------------
