@@ -456,7 +456,7 @@ orderRouter.patch("/:id/status", authenticateToken, async (req: Request, res: Re
       return
     }
 
-    const orderRes = await query("SELECT * FROM orders WHERE id = $1 OR order_number = $1;", [id])
+    const orderRes = await query("SELECT * FROM orders WHERE id::text = $1 OR order_number = $1;", [id])
     if (orderRes.rows.length === 0) {
       res.status(404).json({ error: "Order not found" })
       return
@@ -539,7 +539,7 @@ orderRouter.post("/:id/cancel", authenticateToken, async (req: Request, res: Res
 
     await client.query("BEGIN")
 
-    const orderRes = await client.query("SELECT * FROM orders WHERE id = $1 OR order_number = $1 FOR UPDATE;", [id])
+    const orderRes = await client.query("SELECT * FROM orders WHERE id::text = $1 OR order_number = $1 FOR UPDATE;", [id])
     if (orderRes.rows.length === 0) {
       res.status(404).json({ error: "Order not found" })
       return
